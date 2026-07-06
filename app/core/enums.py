@@ -1,0 +1,22 @@
+from enum import StrEnum
+
+
+class HealthState(StrEnum):
+    OK = "OK"
+    DEGRADED = "DEGRADED"
+    CRITICAL = "CRITICAL"
+    DOWN = "DOWN"
+    MAINTENANCE = "MAINTENANCE"
+
+
+class WorkflowStage(StrEnum):
+    WATCH = "WATCH"
+    REVIEW = "REVIEW"
+    VALIDATION_PENDING = "VALIDATION_PENDING"
+    READY = "READY"
+    SENT = "SENT"
+    CANCELLED = "CANCELLED"
+    EXPIRED = "EXPIRED"
+    INVALIDATED = "INVALIDATED"
+    DATA_DEGRADED = "DATA_DEGRADED"
+    NO_ACTION = "NO_ACTION"
