@@ -17,6 +17,7 @@ MVP starter repository for the Dumpectorist market-structure monitoring project.
 - Typed adapter foundation
 - Parser test foundation
 - Watchlist workflow foundation
+- Structure model foundation
 - Sprint roadmap
 - GitHub PR template
 
@@ -49,6 +50,7 @@ app/
   api/              FastAPI route modules
   core/             settings and shared enums
   strategy/         candidate review and setup workflow skeleton
+  structure/        deterministic snapshot layer
   watchlist/        adapter payload to watchlist workflow
 tests/              pytest test suite
 docs/               sprint and project notes
@@ -70,8 +72,8 @@ docs/               sprint and project notes
 
 ## Current Sprint
 
-Sprint 2 adds the first watchlist workflow. See `docs/WATCHLIST.md` for stages, input rules, and tests.
+Sprint 3 adds the first structure model layer. See `docs/STRUCTURE.md` for states, input conversion, and tests.
 
 ## Next Sprint
 
-Sprint 3 should add the first structure-analysis models and tests on top of watchlist entries.
+Sprint 4 should connect snapshots to the setup-classifier skeleton.
