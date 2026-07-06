@@ -9,7 +9,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         version="0.1.0",
-        description="Cavack monitoring MVP",
+        description="Dumpectorist monitoring MVP",
     )
     app.include_router(health_router, prefix="/api/v1", tags=["health"])
     return app
