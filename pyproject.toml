@@ -1,7 +1,7 @@
 [project]
-name = "cavack-market-monitor"
+name = "dumpectorist"
 version = "0.1.0"
-description = "Market structure monitoring MVP"
+description = "Dumpectorist monitoring MVP"
 requires-python = ">=3.12"
 dependencies = [
   "fastapi>=0.115.0",
