@@ -19,6 +19,7 @@ MVP starter repository for the Dumpectorist market-structure monitoring project.
 - Watchlist workflow foundation
 - Structure model foundation
 - Setup classifier foundation
+- Candidate checks foundation
 - Sprint roadmap
 - GitHub PR template
 
@@ -49,6 +50,7 @@ pytest
 app/
   adapters/         source adapter contracts, models, parser helpers, HTTP helper
   api/              FastAPI route modules
+  checks/           candidate checks before later planning layers
   core/             settings and shared enums
   setups/           setup candidate classification layer
   strategy/         candidate review and setup workflow skeleton
@@ -74,8 +76,8 @@ docs/               sprint and project notes
 
 ## Current Sprint
 
-Sprint 4 adds the setup classifier skeleton. See `docs/SETUPS.md` for labels, rules, and tests.
+Sprint 5 adds the candidate checks layer. See `docs/CHECKS.md` for status values, rules, and tests.
 
 ## Next Sprint
 
-Sprint 5 should add the validation module skeleton.
+Sprint 6 should add the risk planning module skeleton.
