@@ -14,6 +14,8 @@ MVP starter repository for the Dumpectorist market-structure monitoring project.
 - GitHub Actions CI
 - Docker build ignore rules
 - Starter strategy review skeleton
+- Typed adapter foundation
+- Parser test foundation
 - Sprint roadmap
 - GitHub PR template
 
@@ -42,6 +44,7 @@ pytest
 
 ```text
 app/
+  adapters/         source adapter contracts, models, parser helpers, HTTP helper
   api/              FastAPI route modules
   core/             settings and shared enums
   strategy/         candidate review and setup workflow skeleton
@@ -63,6 +66,10 @@ docs/               sprint and project notes
 9. Lifecycle tracking
 10. Backtest and operations
 
+## Current Sprint
+
+Sprint 1 starts the adapter layer. See `docs/ADAPTERS.md` for the adapter contract, parser rules, and test expectations.
+
 ## Next Sprint
 
-Sprint 1 should focus on clean source adapters, parser tests, service health checks, and typed data models before adding advanced decision logic.
+Sprint 2 should build the first watchlist workflow on top of typed adapter outputs.
