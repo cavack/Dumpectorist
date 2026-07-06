@@ -1,6 +1,6 @@
-# Cavack Market Monitor
+# Dumpector
 
-MVP starter repository for a market-structure monitoring project.
+MVP starter repository for the Dumpector market-structure monitoring project.
 
 ## Includes
 
