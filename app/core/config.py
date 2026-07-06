@@ -15,5 +15,11 @@ class Settings(BaseSettings):
     enable_live_actions: bool = False
     max_leverage: int = 5
 
+    def validate(self) -> None:
+        checks = [not self.enable_live_actions, self.max_leverage <= 5]
+        if not all(checks):
+            raise ValueError("invalid MVP settings")
+
 
 settings = Settings()
+settings.validate()
