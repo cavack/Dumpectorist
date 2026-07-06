@@ -1,6 +1,6 @@
-# Dumpector
+# Dumpectorist
 
-MVP starter repository for the Dumpector market-structure monitoring project.
+MVP starter repository for the Dumpectorist market-structure monitoring project.
 
 ## Includes
 
