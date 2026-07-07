@@ -89,7 +89,7 @@ class RuntimeOrchestrator:
             return ()
 
         outcomes = await asyncio.gather(
-            *(self._run_job(job) for job in due_jobs),
+            *(self._run_job(job, scheduled_now=now) for job in due_jobs),
         )
         return tuple(outcomes)
 
@@ -109,16 +109,33 @@ class RuntimeOrchestrator:
             except TimeoutError:
                 continue
 
-    async def _run_job(self, job: ScheduledSourceJob) -> WorkerRunOutcome:
-        started_at = self._aware_clock()
+    async def _run_job(
+        self,
+        job: ScheduledSourceJob,
+        *,
+        scheduled_now: datetime,
+    ) -> WorkerRunOutcome:
+        started_at = self._clock_not_before(scheduled_now)
         try:
             try:
                 payload = await asyncio.wait_for(
                     job.adapter.load(),
                     timeout=job.schedule.timeout_seconds,
                 )
+                self._validate_payload(job, payload)
+                finished_at = self._clock_not_before(started_at)
+                outcome = WorkerRunOutcome(
+                    job_name=job.name,
+                    kind=job.kind,
+                    status=_status_for_payload(payload),
+                    started_at=started_at,
+                    finished_at=finished_at,
+                    adapter_state=payload.health.state,
+                    message=payload.health.message,
+                )
+                return await self._persist_payload(job, payload, outcome)
             except TimeoutError:
-                finished_at = self._aware_clock()
+                finished_at = self._clock_not_before(started_at)
                 outcome = WorkerRunOutcome(
                     job_name=job.name,
                     kind=job.kind,
@@ -130,7 +147,7 @@ class RuntimeOrchestrator:
                 )
                 return await self._persist_failure(job, outcome)
             except Exception as error:
-                finished_at = self._aware_clock()
+                finished_at = self._clock_not_before(started_at)
                 outcome = WorkerRunOutcome(
                     job_name=job.name,
                     kind=job.kind,
@@ -141,18 +158,6 @@ class RuntimeOrchestrator:
                     message=_error_message(error),
                 )
                 return await self._persist_failure(job, outcome)
-
-            finished_at = self._aware_clock()
-            outcome = WorkerRunOutcome(
-                job_name=job.name,
-                kind=job.kind,
-                status=_status_for_payload(payload),
-                started_at=started_at,
-                finished_at=finished_at,
-                adapter_state=payload.health.state,
-                message=payload.health.message,
-            )
-            return await self._persist_payload(job, payload, outcome)
         finally:
             async with self._state_lock:
                 self._in_flight.discard(job.name)
@@ -171,7 +176,7 @@ class RuntimeOrchestrator:
                 kind=job.kind,
                 status=WorkerRunStatus.PERSISTENCE_FAILED,
                 started_at=outcome.started_at,
-                finished_at=self._aware_clock(),
+                finished_at=self._clock_not_before(outcome.finished_at),
                 adapter_state=outcome.adapter_state,
                 message=_error_message(error),
             )
@@ -190,11 +195,25 @@ class RuntimeOrchestrator:
                 kind=job.kind,
                 status=WorkerRunStatus.PERSISTENCE_FAILED,
                 started_at=outcome.started_at,
-                finished_at=self._aware_clock(),
+                finished_at=self._clock_not_before(outcome.finished_at),
                 adapter_state=AdapterState.DOWN,
                 message=_error_message(error),
             )
         return outcome
+
+    @staticmethod
+    def _validate_payload(job: ScheduledSourceJob, payload: AdapterPayload) -> None:
+        if not isinstance(payload, AdapterPayload):
+            raise TypeError("adapter must return AdapterPayload")
+        expected_name = job.adapter.name.strip()
+        if payload.name.strip() != expected_name:
+            raise ValueError("adapter payload name mismatch")
+        if payload.health.name.strip() != expected_name:
+            raise ValueError("adapter health name mismatch")
+
+    def _clock_not_before(self, fallback: datetime) -> datetime:
+        value = self._aware_clock()
+        return value if value >= fallback else fallback
 
     def _aware_clock(self) -> datetime:
         value = self._clock()
