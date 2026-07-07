@@ -1,11 +1,12 @@
 # Dumpectorist
 
-Dumpectorist is an MVP foundation for a market-structure monitoring workflow. The repository contains deterministic domain layers, configuration safeguards, tests, and CI.
+Dumpectorist is an MVP foundation for a market-structure monitoring workflow. The repository contains deterministic domain layers, configuration safeguards, tests, CI, and a supervised public-data worker.
 
 ## Implemented
 
 - FastAPI application and health endpoints
 - Docker Compose with PostgreSQL and Redis health checks
+- One-shot Alembic migration service before API and worker startup
 - Environment-based settings validation
 - Typed source-adapter contracts and parser helpers
 - Public LBank perpetual adapter for instrument, market, and order-book data
@@ -18,8 +19,12 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Explicit cross-exchange symbol mapping
 - Fresh-source benchmark median and LBank deviation classification
 - Benchmark dispersion and minimum-source hard gates
-- Interval scheduling for benchmark and discovery adapters
+- Interval scheduling for execution, benchmark, and discovery adapters
+- Configuration-driven worker job registry
 - Per-job timeout, in-flight deduplication, and failure isolation
+- Dedicated worker entrypoint with graceful signal handling
+- Consecutive-failure telemetry and structured alert logs
+- Retention cleanup limited to runtime operational records
 - Atomic persistence of source snapshots, source health, and worker runs
 - Daily and 4H structure hard gates for final assembly
 - End-to-end structure, setup, flow, execution, consensus, and planning assembly
@@ -54,6 +59,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Consensus cannot create a setup, plan, or final signal by itself.
 - Runtime jobs call public adapter `load()` methods and expose no order-placement interface.
 - A failed runtime job cannot cancel other due jobs.
+- Runtime retention does not delete signal assembly or lifecycle records.
 - `SHORT_READY` requires confirmed Daily and 4H structure damage plus every downstream hard gate.
 - Blocked assemblies receive a `HOLD` plan and `PENDING` lifecycle.
 
@@ -62,8 +68,9 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 ```bash
 cp .env.example .env
 docker compose up --build
-alembic upgrade head
 ```
+
+Compose runs database migration first, then starts the API and runtime worker.
 
 Endpoints:
 
@@ -71,6 +78,12 @@ Endpoints:
 GET /api/v1/health
 GET /api/v1/health/operations
 GET /api/v1/dashboard/summary
+```
+
+Worker logs:
+
+```bash
+docker compose logs -f runtime-worker
 ```
 
 ## Local Quality Checks
@@ -98,12 +111,13 @@ app/
   ops/              audit, backup manifest, and dependency health
   overview/         database-backed summary providers and aggregation
   planning/         deterministic plan models and construction
-  runtime/          scheduling, isolation, and source persistence
+  runtime/          registry, scheduling, supervision, telemetry, retention
   setups/           setup classification
   signals/          end-to-end assembly, gate audit, and persistence
   strategy/         candidate review compatibility layer
   structure/        deterministic structure snapshots
   watchlist/        adapter payload to watchlist workflow
+  worker.py          dedicated runtime worker entrypoint
 migrations/          Alembic migration environment and versions
 tests/               pytest suite
 docs/                architecture and sprint documentation
@@ -112,7 +126,7 @@ docs/                architecture and sprint documentation
 
 ## Current Status
 
-Sprints 0 through 10 plus Sprint 11A LBank integration, Sprint 11B database-backed overview, Sprint 11C1 perpetual benchmark adapters, Sprint 11C2 discovery adapters, Sprint 11D cross-exchange consensus, Sprint 11E runtime orchestration, and Sprint 11F end-to-end assembly are implemented as tested foundation layers. The next work is runtime deployment, retention, and operational alerting.
+Sprints 0 through 10 and Sprints 11A through 11G are implemented as tested foundation layers. The next phase is dry-run validation, gate-frequency analysis, and threshold calibration without order placement.
 
 ## Documentation
 

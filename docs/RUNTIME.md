@@ -1,8 +1,20 @@
-# Runtime Orchestration
+# Runtime and Worker Deployment
 
-The runtime package schedules public benchmark and discovery adapters, isolates each job, and persists source payloads and health through the existing `domain_records` table.
+The runtime package executes public source adapters in a dedicated worker process. It does not place orders and does not enable live actions.
 
-It does not place orders and does not enable live actions.
+## Source Kinds
+
+```text
+EXECUTION  LBank public execution reference
+BENCHMARK  MEXC, Gate, Bybit, Binance USD-M
+DISCOVERY  DEX Screener and CoinGecko
+```
+
+Every adapter uses the existing contract:
+
+```python
+async def load() -> AdapterPayload
+```
 
 ## Components
 
@@ -11,38 +23,45 @@ RuntimeSchedule
 ScheduledSourceJob
 RuntimeOrchestrator
 DomainRecordRuntimeStore
+RuntimeSupervisor
+RuntimeMetrics
+DomainRecordRetentionCleaner
+build_runtime_jobs
 ```
 
-Helper functions create correctly typed jobs:
+## Configuration-driven Registry
+
+`build_runtime_jobs(settings)` creates the enabled jobs from environment settings.
+
+Default jobs:
 
 ```text
-benchmark_job(...)
-discovery_job(...)
+lbank-execution
+binance-usdm-benchmark
+bybit-linear-benchmark
+mexc-usdt-benchmark
+gate-usdt-benchmark
+dex-screener-boosts
+coingecko-categories
 ```
 
-Every adapter must expose its existing public contract:
+Initial delays are staggered so all public endpoints are not contacted at the same instant.
 
-```python
-async def load() -> AdapterPayload
-```
+The API may run with every worker source group disabled. The dedicated worker refuses to start when its registry is empty.
 
-This allows LBank-independent benchmark adapters and discovery adapters to use the same scheduler without sharing market-specific parsing logic.
-
-## Scheduling Rules
+## Scheduling and Isolation
 
 Each job has:
 
-- `interval_seconds`
-- `timeout_seconds`
-- `initial_delay_seconds`
-- a unique job name
-- a `BENCHMARK` or `DISCOVERY` kind
+- interval
+- timeout
+- initial delay
+- unique name
+- explicit source kind
 
-The first due time is calculated when the scheduler starts observing the job. Before a due job begins, its next run time is moved forward by one interval. An in-flight set prevents a second scheduler cycle from starting the same job concurrently.
+An in-flight set prevents duplicate concurrent execution of the same job. Different due jobs run concurrently, while each handles its own timeout, adapter error, payload error, and persistence error.
 
-Different jobs run concurrently through `asyncio.gather`, while every job handles its own timeout, adapter error, and persistence error.
-
-## Worker Statuses
+Statuses:
 
 ```text
 SUCCEEDED
@@ -52,107 +71,124 @@ TIMED_OUT
 PERSISTENCE_FAILED
 ```
 
-Mapping from adapter health:
+A failed job cannot cancel another job.
+
+## Persistence
+
+Successful or degraded loads persist atomically:
 
 ```text
-AdapterState.OK        -> SUCCEEDED
-AdapterState.DEGRADED  -> DEGRADED
-AdapterState.DOWN      -> FAILED
-```
-
-A degraded adapter payload is still persisted because it contains useful health and diagnostic context. It is not converted into valid market data.
-
-## Failure Isolation
-
-A failure in one adapter does not cancel other due jobs.
-
-Handled failure classes include:
-
-- adapter exception
-- adapter timeout
-- malformed adapter payload
-- adapter and payload name mismatch
-- database persistence exception
-
-Timeout cancels only the timed-out adapter coroutine. In-flight state is cleared in a `finally` block.
-
-## Persistence Records
-
-Successful and degraded adapter loads are stored atomically as:
-
-```text
-benchmark_snapshot or discovery_snapshot
+execution_snapshot, benchmark_snapshot, or discovery_snapshot
 source_health
 worker_run
 ```
 
-A failed or timed-out adapter stores:
+Failed and timed-out loads persist:
 
 ```text
 source_health
 worker_run
 ```
 
-The snapshot symbol is selected from explicit payload fields in this order:
+Decimals are stored as strings. Datetimes must be timezone-aware and are stored as ISO-8601 values.
+
+## Supervisor and Telemetry
+
+`RuntimeSupervisor` performs one cycle at each worker tick:
+
+1. run due jobs
+2. update in-memory status counters
+3. emit structured completion logs
+4. emit an error alert after the configured number of consecutive failures
+5. run retention cleanup when due
+
+A successful or degraded result resets the consecutive hard-failure counter for that job. Durable `worker_run` records provide historical metrics; current counters are available through `RuntimeMetricsSnapshot`.
+
+Retention failure is logged but does not stop source jobs.
+
+## Retention
+
+The default retention period is 30 days. Cleanup applies only to runtime operational records:
 
 ```text
-symbol
-query
-job name
+execution_snapshot
+benchmark_snapshot
+discovery_snapshot
+source_health
+worker_run
 ```
 
-Decimals are stored as strings and timezone-aware datetimes are stored as ISO-8601 values. Unknown Python object types are rejected instead of being silently stringified.
+Signal assembly and lifecycle records are not included in runtime cleanup.
 
-No new migration is required because runtime records use the existing generic `DomainRecord` model and its `record_type`, `symbol`, `state`, and JSON payload fields.
+## Dedicated Entrypoint
 
-## Example
+Run the worker directly:
 
-```python
-import asyncio
-
-from app.adapters.binance_futures import BinanceUsdMAdapter
-from app.adapters.coingecko import CoinGeckoDiscoveryAdapter, CoinGeckoFeed
-from app.db.session import Database
-from app.runtime import (
-    DomainRecordRuntimeStore,
-    RuntimeOrchestrator,
-    benchmark_job,
-    discovery_job,
-)
-
-
-database = Database("postgresql+asyncpg://app:change_me@postgres:5432/app")
-store = DomainRecordRuntimeStore(database.session_factory)
-
-jobs = [
-    benchmark_job(
-        BinanceUsdMAdapter(symbol="BTCUSDT"),
-        interval_seconds=5,
-        timeout_seconds=3,
-    ),
-    discovery_job(
-        CoinGeckoDiscoveryAdapter(feed=CoinGeckoFeed.CATEGORIES),
-        interval_seconds=300,
-        timeout_seconds=10,
-        initial_delay_seconds=15,
-    ),
-]
-
-runtime = RuntimeOrchestrator(jobs, store=store)
-stop_event = asyncio.Event()
-await runtime.run_forever(stop_event, tick_seconds=1)
+```bash
+python -m app.worker
 ```
 
-The runtime should be launched as a dedicated worker process. API startup wiring, deployment supervision, and retention cleanup remain separate operational tasks.
+The entrypoint:
+
+- creates the configured registry
+- opens the async database engine
+- creates the runtime store and retention cleaner
+- installs `SIGINT` and `SIGTERM` handlers
+- starts the supervisor loop
+- disposes the database engine during shutdown
+
+Signal handlers set a stop event. The current cycle finishes before the process exits.
+
+## Docker Compose
+
+Compose contains four operational services:
+
+```text
+migrate
+backend-api
+runtime-worker
+postgres
+redis
+```
+
+The one-shot `migrate` service runs:
+
+```bash
+alembic upgrade head
+```
+
+The API and worker start only after migration succeeds. Both use `restart: unless-stopped`; the worker receives a 20-second graceful shutdown period.
+
+## Environment Settings
+
+```text
+WORKER_TICK_SECONDS
+WORKER_SOURCE_TIMEOUT_SECONDS
+WORKER_EXECUTION_INTERVAL_SECONDS
+WORKER_BENCHMARK_INTERVAL_SECONDS
+WORKER_DISCOVERY_INTERVAL_SECONDS
+WORKER_CLEANUP_INTERVAL_SECONDS
+WORKER_RETENTION_DAYS
+WORKER_FAILURE_ALERT_THRESHOLD
+WORKER_ENABLE_LBANK
+WORKER_ENABLE_BENCHMARKS
+WORKER_ENABLE_DISCOVERY
+WORKER_LBANK_SYMBOL
+WORKER_MEXC_SYMBOL
+WORKER_GATE_SYMBOL
+WORKER_BYBIT_SYMBOL
+WORKER_BINANCE_SYMBOL
+```
+
+All intervals and limits are validated by Pydantic settings.
 
 ## Safety Rules
 
-- Public adapter methods only.
+- Public endpoints only.
 - No order-placement interface.
 - No synthetic fallback values.
-- Unique job names are mandatory.
-- Naive datetimes are rejected.
-- Persistence errors are reported, not hidden.
-- Discovery records remain `DISCOVERY_ONLY`.
-- Benchmark records remain `BENCHMARK_ONLY`.
-- Runtime completion does not create a setup, plan, or final signal.
+- LBank remains the execution reference.
+- Benchmark and discovery roles remain restricted.
+- Empty worker registries fail fast in the worker process only.
+- Database cleanup cannot delete signal assembly records.
+- Runtime completion cannot create a final signal by itself.

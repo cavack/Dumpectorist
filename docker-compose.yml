@@ -1,4 +1,15 @@
 services:
+  migrate:
+    build: .
+    container_name: dumpectorist-migrate
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+
   backend-api:
     build: .
     container_name: dumpectorist-api
@@ -7,8 +18,8 @@ services:
     ports:
       - "8787:8787"
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
     command: ["python", "-m", "app.main"]
@@ -24,6 +35,20 @@ services:
       timeout: 3s
       retries: 5
       start_period: 10s
+    restart: unless-stopped
+
+  runtime-worker:
+    build: .
+    container_name: dumpectorist-worker
+    env_file:
+      - .env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    command: ["python", "-m", "app.worker"]
+    stop_grace_period: 20s
     restart: unless-stopped
 
   postgres:

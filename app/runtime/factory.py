@@ -6,6 +6,24 @@ from app.runtime.models import (
 )
 
 
+def execution_job(
+    adapter: SourceAdapter,
+    *,
+    interval_seconds: float,
+    timeout_seconds: float,
+    initial_delay_seconds: float = 0.0,
+    name: str | None = None,
+) -> ScheduledSourceJob:
+    return _source_job(
+        adapter,
+        kind=SourceJobKind.EXECUTION,
+        interval_seconds=interval_seconds,
+        timeout_seconds=timeout_seconds,
+        initial_delay_seconds=initial_delay_seconds,
+        name=name,
+    )
+
+
 def benchmark_job(
     adapter: SourceAdapter,
     *,
