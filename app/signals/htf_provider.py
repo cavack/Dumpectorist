@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.candles.models import CandleInterval, CandleSource
