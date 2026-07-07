@@ -15,6 +15,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Dedicated planning package
 - Notification formatting and disabled delivery interface
 - Lifecycle and expiry handling
+- Read-only dashboard summary API
 - GitHub Actions with Ruff and pytest
 
 ## Configuration Rules
@@ -23,6 +24,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - `MAX_LEVERAGE` must be between 1 and 5.
 - Planning rejects invalid entry and boundary combinations.
 - Planning rejects multiplier values outside 1 through 5.
+- Dashboard output contains no generated market records.
 
 ## Local Start
 
@@ -31,10 +33,11 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Health check:
+Endpoints:
 
-```bash
-curl http://localhost:8787/api/v1/health
+```text
+GET /api/v1/health
+GET /api/v1/dashboard/summary
 ```
 
 ## Local Quality Checks
@@ -56,6 +59,7 @@ app/
   flow/             candidate flow checks
   lifecycle/        lifecycle transitions and expiry handling
   notifications/    message formatting and delivery interfaces
+  overview/         read-only summary models, provider, and aggregation
   planning/         deterministic plan models and construction
   setups/           setup classification
   strategy/         candidate review compatibility layer
@@ -68,7 +72,7 @@ docs/               architecture and sprint documentation
 
 ## Current Status
 
-Sprints 0 through 8 are implemented as foundation layers. The next step is Sprint 9: a read-only dashboard summary.
+Sprints 0 through 9 are implemented as foundation layers. The dashboard currently reports `NO_STORE` until persistence is connected.
 
 ## Documentation
 
@@ -79,4 +83,5 @@ Sprints 0 through 8 are implemented as foundation layers. The next step is Sprin
 - `docs/FLOW.md`
 - `docs/NOTIFICATIONS.md`
 - `docs/LIFECYCLE.md`
+- `docs/DASHBOARD.md`
 - `docs/SPRINTS.md`
