@@ -30,7 +30,11 @@ class RuntimeStore(Protocol):
 
 
 def json_safe(value: Any) -> Any:
-    if value is None or isinstance(value, (str, int, float, bool)):
+    if value is None:
+        return None
+    if isinstance(value, Enum):
+        return json_safe(value.value)
+    if isinstance(value, (str, int, float, bool)):
         return value
     if isinstance(value, Decimal):
         return str(value)
@@ -40,14 +44,15 @@ def json_safe(value: Any) -> Any:
         return value.isoformat()
     if isinstance(value, UUID):
         return str(value)
-    if isinstance(value, Enum):
-        return value.value
     if is_dataclass(value):
         return json_safe(asdict(value))
     if isinstance(value, dict):
         return {str(key): json_safe(item) for key, item in value.items()}
-    if isinstance(value, (list, tuple, set, frozenset)):
+    if isinstance(value, (list, tuple)):
         return [json_safe(item) for item in value]
+    if isinstance(value, (set, frozenset)):
+        normalized = [json_safe(item) for item in value]
+        return sorted(normalized, key=repr)
     raise TypeError(f"unsupported persistence value: {type(value).__name__}")
 
 
@@ -79,7 +84,9 @@ class NullRuntimeStore:
 
 class InMemoryRuntimeStore:
     def __init__(self) -> None:
-        self.payload_runs: list[tuple[ScheduledSourceJob, AdapterPayload, WorkerRunOutcome]] = []
+        self.payload_runs: list[
+            tuple[ScheduledSourceJob, AdapterPayload, WorkerRunOutcome]
+        ] = []
         self.failure_runs: list[tuple[ScheduledSourceJob, WorkerRunOutcome]] = []
 
     async def persist_payload(
