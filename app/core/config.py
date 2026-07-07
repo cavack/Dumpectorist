@@ -40,22 +40,22 @@ class Settings(BaseSettings):
     def enforce_mvp_safety(self) -> Self:
         if self.enable_live_actions:
             raise ValueError("live actions must remain disabled for the MVP")
-        symbols = {
-            "worker_lbank_symbol": self.worker_lbank_symbol,
-            "worker_mexc_symbol": self.worker_mexc_symbol,
-            "worker_gate_symbol": self.worker_gate_symbol,
-            "worker_bybit_symbol": self.worker_bybit_symbol,
-            "worker_binance_symbol": self.worker_binance_symbol,
-        }
-        for name, value in symbols.items():
+
+        required_symbols: dict[str, str] = {}
+        if self.worker_enable_lbank:
+            required_symbols["worker_lbank_symbol"] = self.worker_lbank_symbol
+        if self.worker_enable_benchmarks:
+            required_symbols.update(
+                {
+                    "worker_mexc_symbol": self.worker_mexc_symbol,
+                    "worker_gate_symbol": self.worker_gate_symbol,
+                    "worker_bybit_symbol": self.worker_bybit_symbol,
+                    "worker_binance_symbol": self.worker_binance_symbol,
+                }
+            )
+        for name, value in required_symbols.items():
             if not value.strip():
                 raise ValueError(f"{name} must not be blank")
-        if not (
-            self.worker_enable_lbank
-            or self.worker_enable_benchmarks
-            or self.worker_enable_discovery
-        ):
-            raise ValueError("at least one worker source group must be enabled")
         return self
 
 
