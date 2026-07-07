@@ -83,14 +83,15 @@
 - [x] Alembic environment and initial migration
 - [x] Repository and migration integration tests
 
-## Next
-
 ### Sprint 10B — Backtest and Metrics
 
-- [ ] Backtest runner
-- [ ] Metrics report
-- [ ] Input validation
-- [ ] Tests and documentation
+- [x] Deterministic backtest runner
+- [x] Explicit intrabar policy
+- [x] Metrics report
+- [x] Input validation
+- [x] Tests and documentation
+
+## Next
 
 ### Sprint 10C — Operations
 
