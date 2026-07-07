@@ -10,6 +10,8 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Typed source-adapter contracts and parser helpers
 - Public LBank perpetual adapter for instrument, market, and order-book data
 - LBank execution hard gates for freshness, latency, spread, and depth
+- Public benchmark adapters for MEXC, Gate, Bybit, and Binance USD-M perpetuals
+- Typed benchmark freshness states and strict `BENCHMARK_ONLY` role
 - Watchlist workflow
 - Structure snapshot analysis
 - Setup classification
@@ -33,6 +35,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Dashboard output contains no generated market records.
 - Backtests consume explicit historical bars and generate no market data.
 - LBank failures produce `EXECUTION_PENDING` or `DATA_DEGRADED`, never `SHORT_READY`.
+- MEXC, Gate, Bybit, and Binance are benchmark/confirmation only and cannot replace LBank execution checks.
 
 ## Local Start
 
@@ -63,7 +66,7 @@ pytest -q
 
 ```text
 app/
-  adapters/         source contracts, LBank client, parsers, HTTP helper
+  adapters/         LBank execution source and public benchmark sources
   api/              FastAPI routes
   backtest/         deterministic runner and metrics
   core/             settings and shared enums
@@ -87,12 +90,13 @@ docs/                architecture and sprint documentation
 
 ## Current Status
 
-Sprints 0 through 10 plus Sprint 11A LBank integration and Sprint 11B database-backed overview are implemented as tested foundation layers. The next runtime work is benchmark and discovery adapters.
+Sprints 0 through 10 plus Sprint 11A LBank integration, Sprint 11B database-backed overview, and Sprint 11C1 perpetual benchmark adapters are implemented as tested foundation layers. The next runtime work is discovery adapters and cross-exchange consensus.
 
 ## Documentation
 
 - `docs/ADAPTERS.md`
 - `docs/LBANK.md`
+- `docs/BENCHMARKS.md`
 - `docs/WATCHLIST.md`
 - `docs/STRUCTURE.md`
 - `docs/SETUPS.md`
