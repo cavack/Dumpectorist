@@ -52,16 +52,23 @@ def test_registry_respects_disabled_source_groups():
     assert all(job.kind == SourceJobKind.DISCOVERY for job in jobs)
 
 
-def test_settings_reject_blank_symbols_and_empty_registry():
+def test_settings_reject_blank_enabled_symbol():
     with pytest.raises(ValidationError):
         Settings(_env_file=None, worker_binance_symbol=" ")
-    with pytest.raises(ValidationError):
-        Settings(
-            _env_file=None,
-            worker_enable_lbank=False,
-            worker_enable_benchmarks=False,
-            worker_enable_discovery=False,
-        )
+
+
+def test_api_only_settings_are_valid_but_worker_registry_is_empty():
+    settings = Settings(
+        _env_file=None,
+        worker_enable_lbank=False,
+        worker_enable_benchmarks=False,
+        worker_enable_discovery=False,
+        worker_lbank_symbol=" ",
+        worker_binance_symbol=" ",
+    )
+
+    with pytest.raises(ValueError):
+        build_runtime_jobs(settings)
 
 
 def test_settings_validate_worker_intervals():
