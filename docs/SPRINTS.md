@@ -120,11 +120,29 @@
 - [x] Unknown-state and non-dashboard record reporting
 - [x] Integration tests and documentation
 
+### Sprint 11C1 — Perpetual Benchmark Adapters
+
+- [x] MEXC USDT perpetual adapter
+- [x] Gate USDT futures adapter
+- [x] Bybit linear perpetual adapter
+- [x] Binance USD-M perpetual adapter
+- [x] Locked `BENCHMARK_ONLY` role
+- [x] Decimal price, funding, open-interest, spread, and depth values
+- [x] Source timestamp, receive time, latency, and freshness states
+- [x] Tests and documentation
+
 ## Next
 
-### Sprint 11C — Benchmark and Discovery Adapters
+### Sprint 11C2 — Discovery Adapters
 
-- [ ] MEXC, Gate, and Bybit public benchmark adapters
-- [ ] DEX Screener and CoinGecko discovery adapters
-- [ ] Source freshness and health reporting
+- [ ] DEX Screener discovery adapter
+- [ ] CoinGecko category and universe adapter
+- [ ] Discovery cache and rate-limit behavior
 - [ ] Integration tests and documentation
+
+### Sprint 11D — Cross-Exchange Consensus
+
+- [ ] Fresh-source median price
+- [ ] Per-source deviation and confidence impact
+- [ ] Minimum-source and stale-source rules
+- [ ] Tests and documentation
