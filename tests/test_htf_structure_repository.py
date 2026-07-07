@@ -100,6 +100,19 @@ async def test_repository_upsert_is_idempotent_and_provider_returns_derived_evid
 
     async with session_factory() as session:
         repository = HtfStructureRepository(session)
+        persisted_daily_zone = await repository.latest_zone(
+            source=CandleSource.BYBIT,
+            symbol="BTCUSDT",
+            interval=CandleInterval.D1,
+        )
+        persisted_daily_event = await repository.latest_event(
+            source=CandleSource.BYBIT,
+            symbol="BTCUSDT",
+            interval=CandleInterval.D1,
+        )
+        assert persisted_daily_zone == daily.primary_zone
+        assert persisted_daily_event == daily.events[0]
+
         second_daily = await repository.upsert_analysis(daily)
         second_four_hour = await repository.upsert_analysis(four_hour)
         await session.commit()
