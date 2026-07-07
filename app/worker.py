@@ -7,8 +7,8 @@ from app.db.session import Database
 from app.runtime.job_registry import build_runtime_jobs
 from app.runtime.retention import DomainRecordRetentionCleaner, RetentionPolicy
 from app.runtime.scheduler import RuntimeOrchestrator
-from app.runtime.store import DomainRecordRuntimeStore
 from app.runtime.supervisor import RuntimeSupervisor
+from app.setups.atomic_runtime_store import AtomicReclaimRuntimeStore
 
 logger = logging.getLogger("dumpectorist.worker")
 
@@ -27,7 +27,7 @@ async def run_worker() -> None:
     stop_event = asyncio.Event()
     install_signal_handlers(stop_event)
     jobs = build_runtime_jobs(settings)
-    store = DomainRecordRuntimeStore(database.session_factory)
+    store = AtomicReclaimRuntimeStore(database.session_factory)
     orchestrator = RuntimeOrchestrator(jobs, store=store)
     cleaner = DomainRecordRetentionCleaner(
         database.session_factory,
