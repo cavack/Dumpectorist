@@ -20,6 +20,8 @@ class AtomicReclaimRuntimeStore(DomainRecordRuntimeStore):
 
         async with self.session_factory() as session:
             source_payload = await persist_m15_confirmation(session, payload)
+            source_payload["job_name"] = job.name
+            source_payload["adapter_name"] = payload.name
             source_payload["kind"] = job.kind.value
             await add_runtime_records(session, job, payload, outcome, source_payload)
             await session.commit()
