@@ -149,6 +149,8 @@ def test_unsorted_book_is_rejected_before_metrics_are_calculated():
     )
     values = vars(original).copy()
     values["order_book"] = reversed_book
+    values["spread"] = reversed_book.best_ask.price - reversed_book.best_bid.price
+    values["spread_bps"] = Decimal("110")
 
     with pytest.raises(ValueError, match="bid levels must be sorted"):
         assess_lbank_liquidity(LBankExecutionSnapshot(**values))
