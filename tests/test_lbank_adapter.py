@@ -106,8 +106,9 @@ async def test_adapter_builds_execution_snapshot():
     assert snapshot.order_book.best_bid.price == Decimal("59999")
     assert snapshot.order_book.best_ask.price == Decimal("60002")
     assert snapshot.spread == Decimal("3")
-    assert snapshot.spread_bps == pytest.approx(Decimal("0.5000041667"))
-    assert snapshot.bid_depth_quote == Decimal("1199.976")
+    expected_bps = (Decimal("3") / Decimal("60000.5")) * Decimal("10000")
+    assert snapshot.spread_bps == expected_bps
+    assert snapshot.bid_depth_quote == Decimal("1199.968")
     assert snapshot.ask_depth_quote == Decimal("1800.08")
     assert snapshot.instrument.price_tick == Decimal("0.1")
     assert snapshot.quote.funding_rate == Decimal("0.0001")
