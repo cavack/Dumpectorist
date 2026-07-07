@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,20 +32,23 @@ def _aware_utc(value: datetime) -> datetime:
     return value.astimezone(timezone.utc)
 
 
-def _canonical(value: object) -> object:
-    if isinstance(value, datetime):
-        return _aware_utc(value).isoformat()
-    if isinstance(value, Decimal):
-        return format(value.normalize(), "f")
-    if isinstance(value, dict):
-        return tuple(sorted((str(key), _canonical(item)) for key, item in value.items()))
-    if isinstance(value, (list, tuple)):
-        return tuple(_canonical(item) for item in value)
-    return value
-
-
 def _equal(current: object, expected: object) -> bool:
-    return _canonical(current) == _canonical(expected)
+    if isinstance(current, datetime) and isinstance(expected, datetime):
+        return _aware_utc(current) == _aware_utc(expected)
+    if isinstance(current, Decimal) or isinstance(expected, Decimal):
+        try:
+            return Decimal(str(current)) == Decimal(str(expected))
+        except InvalidOperation:
+            return False
+    if isinstance(current, (list, tuple)) and isinstance(expected, (list, tuple)):
+        return len(current) == len(expected) and all(
+            _equal(left, right) for left, right in zip(current, expected, strict=True)
+        )
+    if isinstance(current, dict) and isinstance(expected, dict):
+        return current.keys() == expected.keys() and all(
+            _equal(current[key], expected[key]) for key in current
+        )
+    return current == expected
 
 
 class HtfStructureRepository:
