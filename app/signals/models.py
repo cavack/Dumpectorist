@@ -3,7 +3,10 @@ from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
 
-from app.adapters.benchmark_models import BenchmarkSnapshot
+from app.adapters.benchmark_models import (
+    BenchmarkSnapshot,
+    BenchmarkSource,
+)
 from app.adapters.discovery_models import DiscoveryRecord
 from app.adapters.lbank_models import LBankExecutionSnapshot
 from app.execution.consensus import ConsensusRules, CrossExchangeConsensusReport
@@ -127,6 +130,13 @@ class SignalAssemblyRequest:
         normalized_symbol = self.symbol.strip()
         if not normalized_symbol:
             raise ValueError("assembly symbol is required")
+        expected_structure_symbol = self.symbol_map.benchmark_symbols.get(
+            BenchmarkSource.BYBIT
+        )
+        if not expected_structure_symbol:
+            raise ValueError("Bybit structure symbol mapping is required")
+        if self.higher_timeframe.market_symbol != expected_structure_symbol:
+            raise ValueError("derived structure market symbol does not match symbol map")
         object.__setattr__(self, "symbol", normalized_symbol)
 
 
