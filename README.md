@@ -17,6 +17,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Lifecycle and expiry handling
 - Read-only dashboard summary API
 - SQLAlchemy persistence foundation and Alembic migration
+- Deterministic backtest runner and metrics report
 - GitHub Actions with Ruff and pytest
 
 ## Configuration Rules
@@ -26,6 +27,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Planning rejects invalid entry and boundary combinations.
 - Planning rejects multiplier values outside 1 through 5.
 - Dashboard output contains no generated market records.
+- Backtests consume explicit historical bars and generate no market data.
 
 ## Local Start
 
@@ -57,6 +59,7 @@ pytest -q
 app/
   adapters/         source contracts, health models, parsers, HTTP helper
   api/              FastAPI routes
+  backtest/         deterministic runner and metrics
   core/             settings and shared enums
   db/               SQLAlchemy models, sessions, and repository
   flow/             candidate flow checks
@@ -76,7 +79,7 @@ docs/                architecture and sprint documentation
 
 ## Current Status
 
-Sprints 0 through 9 and the Sprint 10A persistence foundation are implemented. The dashboard remains in `NO_STORE` mode until a persistence-backed provider is connected.
+Sprints 0 through 9 plus Sprint 10A persistence and Sprint 10B backtest foundations are implemented. The dashboard remains in `NO_STORE` mode until a persistence-backed provider is connected.
 
 ## Documentation
 
@@ -89,4 +92,5 @@ Sprints 0 through 9 and the Sprint 10A persistence foundation are implemented. T
 - `docs/LIFECYCLE.md`
 - `docs/DASHBOARD.md`
 - `docs/PERSISTENCE.md`
+- `docs/BACKTEST.md`
 - `docs/SPRINTS.md`
