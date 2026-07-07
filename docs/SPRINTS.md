@@ -131,18 +131,28 @@
 - [x] Source timestamp, receive time, latency, and freshness states
 - [x] Tests and documentation
 
-## Next
-
 ### Sprint 11C2 — Discovery Adapters
 
-- [ ] DEX Screener discovery adapter
-- [ ] CoinGecko category and universe adapter
-- [ ] Discovery cache and rate-limit behavior
-- [ ] Integration tests and documentation
+- [x] DEX Screener boosts, profiles, search, and token-pair feeds
+- [x] CoinGecko markets, categories, and universe feeds
+- [x] Locked `DISCOVERY_ONLY` role
+- [x] Shared async TTL cache
+- [x] Sliding-window request budget
+- [x] Controlled degraded behavior
+- [x] Tests and documentation
+
+## Next
 
 ### Sprint 11D — Cross-Exchange Consensus
 
 - [ ] Fresh-source median price
 - [ ] Per-source deviation and confidence impact
 - [ ] Minimum-source and stale-source rules
+- [ ] Tests and documentation
+
+### Sprint 11E — Runtime Orchestration
+
+- [ ] Scheduled discovery and benchmark jobs
+- [ ] Persistence of source snapshots and health
+- [ ] Worker-level failure isolation
 - [ ] Tests and documentation
