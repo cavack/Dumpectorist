@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +17,18 @@ class CandleUpsertResult:
     @property
     def total(self) -> int:
         return self.inserted + self.updated + self.unchanged
+
+
+def _aware_utc(value: datetime) -> datetime:
+    if value.tzinfo is None or value.utcoffset() is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
+def _equal_persisted_value(current: object, expected: object) -> bool:
+    if isinstance(current, datetime) and isinstance(expected, datetime):
+        return _aware_utc(current) == _aware_utc(expected)
+    return current == expected
 
 
 class OhlcvCandleRepository:
@@ -42,7 +55,10 @@ class OhlcvCandleRepository:
                 continue
 
             values = self._record_values(candle)
-            changed = any(getattr(existing, name) != value for name, value in values.items())
+            changed = any(
+                not _equal_persisted_value(getattr(existing, name), value)
+                for name, value in values.items()
+            )
             if not changed:
                 unchanged += 1
                 continue
@@ -120,8 +136,8 @@ class OhlcvCandleRepository:
             category=record.category,
             symbol=record.symbol,
             interval=CandleInterval(record.interval),
-            open_time=record.open_time,
-            close_time=record.close_time,
+            open_time=_aware_utc(record.open_time),
+            close_time=_aware_utc(record.close_time),
             open_price=record.open_price,
             high_price=record.high_price,
             low_price=record.low_price,
