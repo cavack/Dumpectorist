@@ -24,6 +24,10 @@ dev = [
   "aiosqlite>=0.20.0"
 ]
 
+[tool.setuptools.packages.find]
+include = ["app*"]
+exclude = ["migrations*", "tests*"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
