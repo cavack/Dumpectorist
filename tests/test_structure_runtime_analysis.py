@@ -45,13 +45,15 @@ def candle(index: int, *, open_price: str, high: str, low: str, close: str):
 
 def payload_data() -> dict:
     items = (
-        candle(0, open_price="103", high="104", low="102", close="103"),
-        candle(1, open_price="102", high="104", low="100", close="103"),
-        candle(2, open_price="103", high="105", low="103", close="104"),
-        candle(3, open_price="102", high="104", low="100.2", close="103"),
-        candle(4, open_price="103", high="105", low="103", close="104"),
-        candle(5, open_price="103", high="104", low="101", close="102"),
-        candle(6, open_price="101", high="102", low="97", close="98"),
+        candle(0, open_price="104", high="105", low="103", close="104"),
+        candle(1, open_price="103", high="104", low="102", close="103"),
+        candle(2, open_price="102", high="104", low="100", close="103"),
+        candle(3, open_price="103", high="105", low="102.5", close="104"),
+        candle(4, open_price="104", high="105", low="103", close="104"),
+        candle(5, open_price="102", high="104", low="100.2", close="103"),
+        candle(6, open_price="103", high="105", low="102.5", close="104"),
+        candle(7, open_price="104", high="105", low="103", close="104"),
+        candle(8, open_price="101", high="102", low="97", close="98"),
     )
     batch = CandleBatch(
         source=CandleSource.BYBIT,
@@ -93,7 +95,7 @@ async def test_runtime_persists_candles_zones_events_and_snapshot_in_one_cycle()
         adapter=Adapter(),
         schedule=RuntimeSchedule(interval_seconds=60, timeout_seconds=1),
     )
-    now = START + timedelta(hours=28)
+    now = START + timedelta(hours=36)
     orchestrator = RuntimeOrchestrator(
         [job],
         store=DomainRecordRuntimeStore(session_factory),
