@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,25 +31,6 @@ def _aware_utc(value: datetime) -> datetime:
     return value.astimezone(timezone.utc)
 
 
-def _equal(current: object, expected: object) -> bool:
-    if isinstance(current, datetime) and isinstance(expected, datetime):
-        return _aware_utc(current) == _aware_utc(expected)
-    if isinstance(current, Decimal) or isinstance(expected, Decimal):
-        try:
-            return Decimal(str(current)) == Decimal(str(expected))
-        except InvalidOperation:
-            return False
-    if isinstance(current, (list, tuple)) and isinstance(expected, (list, tuple)):
-        return len(current) == len(expected) and all(
-            _equal(left, right) for left, right in zip(current, expected, strict=True)
-        )
-    if isinstance(current, dict) and isinstance(expected, dict):
-        return current.keys() == expected.keys() and all(
-            _equal(current[key], expected[key]) for key in current
-        )
-    return current == expected
-
-
 class HtfStructureRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -71,28 +51,24 @@ class HtfStructureRepository:
             if existing is None:
                 self.session.add(self._zone_record(zone))
                 zones_inserted += 1
+            elif self._zone_from_record(existing) == zone:
+                zones_unchanged += 1
             else:
-                values = self._zone_values(zone)
-                if any(not _equal(getattr(existing, key), value) for key, value in values.items()):
-                    for key, value in values.items():
-                        setattr(existing, key, value)
-                    zones_updated += 1
-                else:
-                    zones_unchanged += 1
+                for key, value in self._zone_values(zone).items():
+                    setattr(existing, key, value)
+                zones_updated += 1
 
         for event in analysis.events:
             existing = await self.session.get(StructureEventRecord, event.event_id)
             if existing is None:
                 self.session.add(self._event_record(event))
                 events_inserted += 1
+            elif self._event_from_record(existing) == event:
+                events_unchanged += 1
             else:
-                values = self._event_values(event)
-                if any(not _equal(getattr(existing, key), value) for key, value in values.items()):
-                    for key, value in values.items():
-                        setattr(existing, key, value)
-                    events_updated += 1
-                else:
-                    events_unchanged += 1
+                for key, value in self._event_values(event).items():
+                    setattr(existing, key, value)
+                events_updated += 1
 
         await self.session.flush()
         return StructureUpsertResult(
