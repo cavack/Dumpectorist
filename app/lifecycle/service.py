@@ -2,7 +2,7 @@ from dataclasses import replace
 from datetime import datetime, timedelta
 
 from app.lifecycle.models import LifecycleRecord, LifecycleState
-from app.strategy.review import PlanDraft, PlanStatus
+from app.planning.models import PlanDraft, PlanStatus
 
 
 def _require_aware(value: datetime, name: str) -> None:
