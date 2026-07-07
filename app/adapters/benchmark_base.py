@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from datetime import datetime, timezone
 from time import perf_counter
 from typing import Any, Protocol
@@ -27,6 +28,7 @@ class BenchmarkAdapterBase(ABC):
         symbol: str,
         base_url: str,
         client: JsonValueClient | None = None,
+        clock: Callable[[], datetime] | None = None,
     ) -> None:
         normalized_symbol = symbol.strip()
         normalized_url = base_url.rstrip("/")
@@ -38,9 +40,16 @@ class BenchmarkAdapterBase(ABC):
         self.symbol = normalized_symbol
         self.base_url = normalized_url
         self.client = client or HttpClient()
+        self.clock = clock or utc_now
 
     def _url(self, path: str) -> str:
         return f"{self.base_url}{path}"
+
+    def received_at(self) -> datetime:
+        value = self.clock()
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("clock must return a timezone-aware datetime")
+        return value
 
     @abstractmethod
     async def fetch_snapshot(self) -> BenchmarkSnapshot:
