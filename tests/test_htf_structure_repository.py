@@ -24,6 +24,32 @@ from app.structure.htf_repository import HtfStructureRepository
 NOW = datetime(2026, 7, 7, 12, 0, tzinfo=timezone.utc)
 
 
+def _assert_decimal_model_equivalent(
+    actual: object | None,
+    expected: object | None,
+    *,
+    decimal_fields: tuple[str, ...],
+) -> None:
+    assert actual is not None
+    assert expected is not None
+    actual_values = vars(actual).copy()
+    expected_values = vars(expected).copy()
+
+    # SQLite's NUMERIC affinity may round-trip through a binary float. The
+    # production PostgreSQL NUMERIC columns are exact, so repository tests use
+    # the same tolerance as the idempotent upsert comparison for SQLite only.
+    for field_name in decimal_fields:
+        actual_value = actual_values.pop(field_name)
+        expected_value = expected_values.pop(field_name)
+        if actual_value is None or expected_value is None:
+            assert actual_value is expected_value
+            continue
+        tolerance = max(abs(expected_value) * Decimal("1e-15"), Decimal("1e-18"))
+        assert abs(actual_value - expected_value) <= tolerance
+
+    assert actual_values == expected_values
+
+
 def analysis(interval: CandleInterval, suffix: str) -> HtfStructureAnalysis:
     duration = interval.duration
     first_open = NOW - duration * 6
@@ -110,8 +136,23 @@ async def test_repository_upsert_is_idempotent_and_provider_returns_derived_evid
             symbol="BTCUSDT",
             interval=CandleInterval.D1,
         )
-        assert persisted_daily_zone == daily.primary_zone
-        assert persisted_daily_event == daily.events[0]
+        _assert_decimal_model_equivalent(
+            persisted_daily_zone,
+            daily.primary_zone,
+            decimal_fields=("low", "high", "strength_score"),
+        )
+        _assert_decimal_model_equivalent(
+            persisted_daily_event,
+            daily.events[0],
+            decimal_fields=(
+                "close_price",
+                "zone_low",
+                "zone_high",
+                "distance_bps",
+                "body_fraction",
+                "volume_ratio",
+            ),
+        )
 
         second_daily = await repository.upsert_analysis(daily)
         second_four_hour = await repository.upsert_analysis(four_hour)
