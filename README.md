@@ -8,6 +8,8 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Docker Compose with PostgreSQL and Redis health checks
 - Environment-based settings validation
 - Typed source-adapter contracts and parser helpers
+- Public LBank perpetual adapter for instrument, market, and order-book data
+- LBank execution hard gates for freshness, latency, spread, and depth
 - Watchlist workflow
 - Structure snapshot analysis
 - Setup classification
@@ -30,6 +32,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Planning rejects multiplier values outside 1 through 5.
 - Dashboard output contains no generated market records.
 - Backtests consume explicit historical bars and generate no market data.
+- LBank failures produce `EXECUTION_PENDING` or `DATA_DEGRADED`, never `SHORT_READY`.
 
 ## Local Start
 
@@ -60,11 +63,12 @@ pytest -q
 
 ```text
 app/
-  adapters/         source contracts, health models, parsers, HTTP helper
+  adapters/         source contracts, LBank client, parsers, HTTP helper
   api/              FastAPI routes
   backtest/         deterministic runner and metrics
   core/             settings and shared enums
   db/               SQLAlchemy models, sessions, and repository
+  execution/        LBank execution hard gates
   flow/             candidate flow checks
   lifecycle/        lifecycle transitions and expiry handling
   notifications/    message formatting and delivery interfaces
@@ -83,11 +87,12 @@ docs/                architecture and sprint documentation
 
 ## Current Status
 
-Sprints 0 through 10 are implemented as tested foundation layers. The dashboard remains in `NO_STORE` mode until a persistence-backed provider is connected.
+Sprints 0 through 10 and Sprint 11A LBank runtime integration are implemented as tested foundation layers. The next runtime work is a persistence-backed overview provider and benchmark/discovery adapters.
 
 ## Documentation
 
 - `docs/ADAPTERS.md`
+- `docs/LBANK.md`
 - `docs/WATCHLIST.md`
 - `docs/STRUCTURE.md`
 - `docs/SETUPS.md`
