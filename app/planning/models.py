@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-from app.core.numbers import finite_float, positive_finite_float
+from app.core.numbers import finite_float
 
 
 class PlanStatus(StrEnum):
