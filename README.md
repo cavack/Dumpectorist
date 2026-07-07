@@ -15,6 +15,9 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - DEX Screener and CoinGecko discovery adapters
 - Shared discovery cache and request-budget controls
 - Strict `DISCOVERY_ONLY` role for discovery records
+- Explicit cross-exchange symbol mapping
+- Fresh-source benchmark median and LBank deviation classification
+- Benchmark dispersion and minimum-source hard gates
 - Watchlist workflow
 - Structure snapshot analysis
 - Setup classification
@@ -40,6 +43,8 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - LBank failures produce `EXECUTION_PENDING` or `DATA_DEGRADED`, never `SHORT_READY`.
 - MEXC, Gate, Bybit, and Binance are benchmark/confirmation only and cannot replace LBank execution checks.
 - DEX Screener and CoinGecko are discovery/context only and cannot provide entry, stop, target, or execution validation.
+- Cross-exchange consensus uses only fresh, explicitly mapped, unique benchmark sources.
+- Consensus cannot create a setup, plan, or final signal by itself.
 
 ## Local Start
 
@@ -75,7 +80,7 @@ app/
   backtest/         deterministic runner and metrics
   core/             settings and shared enums
   db/               SQLAlchemy models, sessions, and repository
-  execution/        LBank execution hard gates
+  execution/        LBank hard gates, symbol mapping, and consensus
   flow/             candidate flow checks
   lifecycle/        lifecycle transitions and expiry handling
   notifications/    message formatting and delivery interfaces
@@ -94,7 +99,7 @@ docs/                architecture and sprint documentation
 
 ## Current Status
 
-Sprints 0 through 10 plus Sprint 11A LBank integration, Sprint 11B database-backed overview, Sprint 11C1 perpetual benchmark adapters, and Sprint 11C2 discovery adapters are implemented as tested foundation layers. The next runtime work is cross-exchange consensus.
+Sprints 0 through 10 plus Sprint 11A LBank integration, Sprint 11B database-backed overview, Sprint 11C1 perpetual benchmark adapters, Sprint 11C2 discovery adapters, and Sprint 11D cross-exchange consensus are implemented as tested foundation layers. The next runtime work is scheduled orchestration and snapshot persistence.
 
 ## Documentation
 
@@ -102,6 +107,7 @@ Sprints 0 through 10 plus Sprint 11A LBank integration, Sprint 11B database-back
 - `docs/LBANK.md`
 - `docs/BENCHMARKS.md`
 - `docs/DISCOVERY.md`
+- `docs/CONSENSUS.md`
 - `docs/WATCHLIST.md`
 - `docs/STRUCTURE.md`
 - `docs/SETUPS.md`
