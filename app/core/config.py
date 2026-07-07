@@ -1,3 +1,6 @@
+from typing import Self
+
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -7,19 +10,19 @@ class Settings(BaseSettings):
     app_env: str = "development"
     app_name: str = "dumpectorist"
     api_host: str = "0.0.0.0"
-    api_port: int = 8787
+    api_port: int = Field(default=8787, ge=1, le=65535)
     database_url: str = "postgresql+asyncpg://app:change_me@postgres:5432/app"
     redis_url: str = "redis://redis:6379/0"
     telegram_bot_token: str = "change_me"
     telegram_admin_ids: str = ""
     enable_live_actions: bool = False
-    max_leverage: int = 5
+    max_leverage: int = Field(default=5, ge=1, le=5)
 
-    def validate(self) -> None:
-        checks = [not self.enable_live_actions, self.max_leverage <= 5]
-        if not all(checks):
-            raise ValueError("invalid MVP settings")
+    @model_validator(mode="after")
+    def enforce_mvp_safety(self) -> Self:
+        if self.enable_live_actions:
+            raise ValueError("live actions must remain disabled for the MVP")
+        return self
 
 
 settings = Settings()
-settings.validate()

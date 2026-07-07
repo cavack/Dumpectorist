@@ -1,5 +1,5 @@
 from app.notifications.models import NotificationChannel, NotificationMessage
-from app.strategy.review import PlanDraft, PlanStatus
+from app.planning.models import PlanDraft, PlanStatus
 
 
 def _format_number(value: float) -> str:
