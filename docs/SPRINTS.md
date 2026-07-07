@@ -152,14 +152,18 @@
 - [x] LBank execution status propagation
 - [x] Tests and documentation
 
-## Next
-
 ### Sprint 11E — Runtime Orchestration
 
-- [ ] Scheduled discovery and benchmark jobs
-- [ ] Persistence of source snapshots and health
-- [ ] Worker-level failure isolation
-- [ ] Tests and documentation
+- [x] Scheduled benchmark and discovery jobs
+- [x] Per-job intervals, initial delays, and timeouts
+- [x] In-flight duplicate prevention
+- [x] Worker-level failure isolation
+- [x] Atomic source snapshot, health, and run persistence
+- [x] Strict JSON-safe Decimal and datetime conversion
+- [x] Dedicated worker loop with graceful stop event
+- [x] Tests and documentation
+
+## Next
 
 ### Sprint 11F — End-to-End Signal Assembly
 
@@ -167,3 +171,10 @@
 - [ ] Preserve hard-gate explanations
 - [ ] Persist complete signal lifecycle records
 - [ ] Scenario tests and documentation
+
+### Sprint 11G — Runtime Deployment
+
+- [ ] Dedicated worker entrypoint and process supervision
+- [ ] Configuration-driven source job registry
+- [ ] Retention and cleanup policy for runtime records
+- [ ] Operational metrics and alerting
