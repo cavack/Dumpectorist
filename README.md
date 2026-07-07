@@ -17,7 +17,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Dedicated planning package
 - Notification formatting and disabled delivery interface
 - Lifecycle and expiry handling
-- Read-only dashboard summary API
+- Read-only database-backed dashboard summary API
 - SQLAlchemy persistence foundation and Alembic migration
 - Deterministic backtest runner and metrics report
 - Audit event conversion and backup manifests
@@ -73,7 +73,7 @@ app/
   lifecycle/        lifecycle transitions and expiry handling
   notifications/    message formatting and delivery interfaces
   ops/              audit, backup manifest, and dependency health
-  overview/         read-only summary models, provider, and aggregation
+  overview/         database-backed summary providers and aggregation
   planning/         deterministic plan models and construction
   setups/           setup classification
   strategy/         candidate review compatibility layer
@@ -87,7 +87,7 @@ docs/                architecture and sprint documentation
 
 ## Current Status
 
-Sprints 0 through 10 and Sprint 11A LBank runtime integration are implemented as tested foundation layers. The next runtime work is a persistence-backed overview provider and benchmark/discovery adapters.
+Sprints 0 through 10 plus Sprint 11A LBank integration and Sprint 11B database-backed overview are implemented as tested foundation layers. The next runtime work is benchmark and discovery adapters.
 
 ## Documentation
 
