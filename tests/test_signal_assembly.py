@@ -20,6 +20,7 @@ from app.lifecycle.models import LifecycleState
 from app.planning.models import PlanRequest, PlanStatus
 from app.signals.models import (
     GateState,
+    HigherTimeframeEvidenceOrigin,
     HigherTimeframeStructureEvidence,
     ShortSetupType,
     SignalAssemblyRequest,
@@ -140,10 +141,16 @@ def make_request(
         setup_type=ShortSetupType.FAILED_PULLBACK_SHORT,
         higher_timeframe=HigherTimeframeStructureEvidence(
             symbol="BTCUSDT.P",
+            market_symbol="BTCUSDT",
             observed_at=NOW,
             daily_damaged=daily,
             four_hour_damaged=four_hour,
-            reasons=("confirmed structure evidence",),
+            origin=HigherTimeframeEvidenceOrigin.DERIVED,
+            daily_zone_id="daily-zone",
+            daily_event_id="daily-break" if daily else None,
+            four_hour_zone_id="four-hour-zone",
+            four_hour_event_id="four-hour-break" if four_hour else None,
+            reasons=("derived structure evidence",),
         ),
         structure_input=StructureInput(
             symbol="BTCUSDT.P",
@@ -270,6 +277,18 @@ def test_plan_symbol_mismatch_blocks_before_market_gates():
     assert report.status == SignalAssemblyStatus.DATA_DEGRADED
     assert "PLAN_SYMBOL_MISMATCH" in gate(report, "symbol_alignment").reasons
     assert gate(report, "higher_timeframe_structure").state == GateState.SKIP
+
+
+def test_manual_higher_timeframe_evidence_is_rejected():
+    with pytest.raises(ValueError, match="derived higher-timeframe evidence"):
+        HigherTimeframeStructureEvidence(
+            symbol="BTCUSDT.P",
+            market_symbol="BTCUSDT",
+            observed_at=NOW,
+            daily_damaged=True,
+            four_hour_damaged=True,
+            origin=HigherTimeframeEvidenceOrigin.MANUAL,
+        )
 
 
 def test_naive_now_is_rejected():
