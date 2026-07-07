@@ -111,14 +111,16 @@
 - [x] Degraded behavior without fallback values
 - [x] Tests and documentation
 
-## Next
-
 ### Sprint 11B — Persistence-backed Overview
 
-- [ ] Map persisted domain records into overview data
-- [ ] Replace the default no-store provider through dependency injection
-- [ ] Keep empty database output honest and read-only
-- [ ] Integration tests and documentation
+- [x] Aggregate canonical persisted record types
+- [x] Dependency-injected database provider
+- [x] Honest empty database output
+- [x] Database unavailable mode without API 500
+- [x] Unknown-state and non-dashboard record reporting
+- [x] Integration tests and documentation
+
+## Next
 
 ### Sprint 11C — Benchmark and Discovery Adapters
 

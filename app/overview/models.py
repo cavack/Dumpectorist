@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field
 class OverviewMode(StrEnum):
     NO_STORE = "NO_STORE"
     IN_MEMORY = "IN_MEMORY"
+    DATABASE = "DATABASE"
+    DATABASE_UNAVAILABLE = "DATABASE_UNAVAILABLE"
 
 
 class OverviewSummary(BaseModel):
