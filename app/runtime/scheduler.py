@@ -115,15 +115,16 @@ class RuntimeOrchestrator:
         *,
         scheduled_now: datetime,
     ) -> WorkerRunOutcome:
-        started_at = self._clock_not_before(scheduled_now)
+        started_at = scheduled_now
         try:
             try:
+                started_at = self._clock_not_before(scheduled_now)
                 payload = await asyncio.wait_for(
                     job.adapter.load(),
                     timeout=job.schedule.timeout_seconds,
                 )
                 self._validate_payload(job, payload)
-                finished_at = self._clock_not_before(started_at)
+                finished_at = self._safe_clock_not_before(started_at)
                 outcome = WorkerRunOutcome(
                     job_name=job.name,
                     kind=job.kind,
@@ -135,7 +136,7 @@ class RuntimeOrchestrator:
                 )
                 return await self._persist_payload(job, payload, outcome)
             except TimeoutError:
-                finished_at = self._clock_not_before(started_at)
+                finished_at = self._safe_clock_not_before(started_at)
                 outcome = WorkerRunOutcome(
                     job_name=job.name,
                     kind=job.kind,
@@ -147,7 +148,7 @@ class RuntimeOrchestrator:
                 )
                 return await self._persist_failure(job, outcome)
             except Exception as error:
-                finished_at = self._clock_not_before(started_at)
+                finished_at = self._safe_clock_not_before(started_at)
                 outcome = WorkerRunOutcome(
                     job_name=job.name,
                     kind=job.kind,
@@ -176,7 +177,7 @@ class RuntimeOrchestrator:
                 kind=job.kind,
                 status=WorkerRunStatus.PERSISTENCE_FAILED,
                 started_at=outcome.started_at,
-                finished_at=self._clock_not_before(outcome.finished_at),
+                finished_at=self._safe_clock_not_before(outcome.finished_at),
                 adapter_state=outcome.adapter_state,
                 message=_error_message(error),
             )
@@ -195,7 +196,7 @@ class RuntimeOrchestrator:
                 kind=job.kind,
                 status=WorkerRunStatus.PERSISTENCE_FAILED,
                 started_at=outcome.started_at,
-                finished_at=self._clock_not_before(outcome.finished_at),
+                finished_at=self._safe_clock_not_before(outcome.finished_at),
                 adapter_state=AdapterState.DOWN,
                 message=_error_message(error),
             )
@@ -210,6 +211,12 @@ class RuntimeOrchestrator:
             raise ValueError("adapter payload name mismatch")
         if payload.health.name.strip() != expected_name:
             raise ValueError("adapter health name mismatch")
+
+    def _safe_clock_not_before(self, fallback: datetime) -> datetime:
+        try:
+            return self._clock_not_before(fallback)
+        except Exception:
+            return fallback
 
     def _clock_not_before(self, fallback: datetime) -> datetime:
         value = self._aware_clock()
