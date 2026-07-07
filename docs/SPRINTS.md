@@ -75,12 +75,25 @@
 - [x] FastAPI dashboard route
 - [x] Tests and documentation
 
+### Sprint 10A — Persistence
+
+- [x] SQLAlchemy base and domain record model
+- [x] Async session factory
+- [x] Validated repository
+- [x] Alembic environment and initial migration
+- [x] Repository and migration integration tests
+
 ## Next
 
-### Sprint 10 — Backtest and Operations
+### Sprint 10B — Backtest and Metrics
 
 - [ ] Backtest runner
 - [ ] Metrics report
-- [ ] Persistence and migrations
+- [ ] Input validation
+- [ ] Tests and documentation
+
+### Sprint 10C — Operations
+
 - [ ] Backups and audit logs
 - [ ] Operational health checks
+- [ ] Tests and documentation
