@@ -100,11 +100,29 @@
 - [x] Docker health checks
 - [x] Tests and documentation
 
+### Sprint 11A — LBank Runtime Integration
+
+- [x] Public contract instrument parser
+- [x] Public market-data parser
+- [x] Public order-book parser
+- [x] Decimal spread and depth calculation
+- [x] Snapshot receive time and latency
+- [x] Execution freshness, spread, and depth hard gates
+- [x] Degraded behavior without fallback values
+- [x] Tests and documentation
+
 ## Next
 
-### Sprint 11 — Runtime Integration
+### Sprint 11B — Persistence-backed Overview
 
-- [ ] Persistence-backed overview provider
-- [ ] Concrete public market-data adapters
+- [ ] Map persisted domain records into overview data
+- [ ] Replace the default no-store provider through dependency injection
+- [ ] Keep empty database output honest and read-only
+- [ ] Integration tests and documentation
+
+### Sprint 11C — Benchmark and Discovery Adapters
+
+- [ ] MEXC, Gate, and Bybit public benchmark adapters
+- [ ] DEX Screener and CoinGecko discovery adapters
 - [ ] Source freshness and health reporting
 - [ ] Integration tests and documentation
