@@ -7,9 +7,8 @@ from app.db.session import Database
 from app.runtime.job_registry import build_runtime_jobs
 from app.runtime.retention import DomainRecordRetentionCleaner, RetentionPolicy
 from app.runtime.scheduler import RuntimeOrchestrator
-from app.runtime.store import DomainRecordRuntimeStore
 from app.runtime.supervisor import RuntimeSupervisor
-
+from app.setups.atomic_runtime_store import AtomicReclaimRuntimeStore
 
 logger = logging.getLogger("dumpectorist.worker")
 
@@ -20,19 +19,15 @@ def install_signal_handlers(stop_event: asyncio.Event) -> None:
         try:
             loop.add_signal_handler(signal_number, stop_event.set)
         except (NotImplementedError, RuntimeError):
-            logger.warning(
-                "signal_handler_unavailable signal=%s",
-                signal_number.name,
-            )
+            logger.warning("signal_handler_unavailable signal=%s", signal_number.name)
 
 
 async def run_worker() -> None:
     database = Database(settings.database_url)
     stop_event = asyncio.Event()
     install_signal_handlers(stop_event)
-
     jobs = build_runtime_jobs(settings)
-    store = DomainRecordRuntimeStore(database.session_factory)
+    store = AtomicReclaimRuntimeStore(database.session_factory)
     orchestrator = RuntimeOrchestrator(jobs, store=store)
     cleaner = DomainRecordRetentionCleaner(
         database.session_factory,
@@ -45,7 +40,6 @@ async def run_worker() -> None:
         cleanup_interval_seconds=settings.worker_cleanup_interval_seconds,
         failure_alert_threshold=settings.worker_failure_alert_threshold,
     )
-
     logger.info(
         "worker_start jobs=%s retention_days=%s",
         len(jobs),

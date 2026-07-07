@@ -19,13 +19,14 @@ def test_registry_builds_execution_benchmark_structure_and_discovery_jobs():
 
     jobs = build_runtime_jobs(settings)
 
-    assert len(jobs) == 9
+    assert len(jobs) == 10
     assert [job.kind for job in jobs] == [
         SourceJobKind.EXECUTION,
         SourceJobKind.BENCHMARK,
         SourceJobKind.BENCHMARK,
         SourceJobKind.BENCHMARK,
         SourceJobKind.BENCHMARK,
+        SourceJobKind.STRUCTURE,
         SourceJobKind.STRUCTURE,
         SourceJobKind.STRUCTURE,
         SourceJobKind.DISCOVERY,
@@ -44,8 +45,11 @@ def test_registry_builds_execution_benchmark_structure_and_discovery_jobs():
     assert jobs[6].name == "bybit-ohlcv-4h"
     assert jobs[6].adapter.interval == CandleInterval.H4
     assert jobs[6].schedule.initial_delay_seconds == 6
-    assert jobs[7].schedule.initial_delay_seconds == 10
-    assert jobs[8].schedule.initial_delay_seconds == 20
+    assert jobs[7].name == "bybit-ohlcv-15m"
+    assert jobs[7].adapter.interval == CandleInterval.M15
+    assert jobs[7].schedule.initial_delay_seconds == 7
+    assert jobs[8].schedule.initial_delay_seconds == 10
+    assert jobs[9].schedule.initial_delay_seconds == 20
     assert all(job.schedule.timeout_seconds == 8 for job in jobs)
 
 

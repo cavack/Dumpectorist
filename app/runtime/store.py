@@ -12,6 +12,7 @@ from app.candles.repository import OhlcvCandleRepository
 from app.candles.serialization import batch_from_payload_data
 from app.db.repository import DomainRecordInput, DomainRecordRepository
 from app.runtime.models import ScheduledSourceJob, SourceJobKind, WorkerRunOutcome
+from app.setups.runtime_analysis import persist_reclaim_from_structure
 from app.structure.htf_engine import analyze_higher_timeframe
 from app.structure.htf_repository import HtfStructureRepository
 
@@ -167,6 +168,7 @@ class DomainRecordRuntimeStore:
                 structure_upsert = await HtfStructureRepository(session).upsert_analysis(
                     analysis
                 )
+                reclaim = await persist_reclaim_from_structure(session, batch, analysis)
                 source_payload["candle_upsert"] = {
                     "inserted": candle_upsert.inserted,
                     "updated": candle_upsert.updated,
@@ -182,6 +184,14 @@ class DomainRecordRuntimeStore:
                     "events_updated": structure_upsert.events_updated,
                     "events_unchanged": structure_upsert.events_unchanged,
                 }
+                if reclaim is not None:
+                    attempt, reclaim_upsert = reclaim
+                    source_payload["reclaim_analysis"] = attempt
+                    source_payload["reclaim_upsert"] = {
+                        "inserted": reclaim_upsert.inserted,
+                        "updated": reclaim_upsert.updated,
+                        "unchanged": reclaim_upsert.unchanged,
+                    }
 
             repository = DomainRecordRepository(session)
             await repository.add(

@@ -88,6 +88,17 @@ def build_runtime_jobs(settings: Settings) -> tuple[ScheduledSourceJob, ...]:
                     initial_delay_seconds=6,
                     name="bybit-ohlcv-4h",
                 ),
+                structure_job(
+                    BybitKlineAdapter(
+                        symbol=settings.worker_ohlcv_symbol,
+                        interval=CandleInterval.M15,
+                        limit=settings.worker_ohlcv_limit,
+                    ),
+                    interval_seconds=interval,
+                    timeout_seconds=timeout,
+                    initial_delay_seconds=7,
+                    name="bybit-ohlcv-15m",
+                ),
             )
         )
 
