@@ -11,6 +11,7 @@ from app.planning.models import PlanDraft, PlanStatus
 from app.signals.models import (
     GateDecision,
     GateState,
+    HigherTimeframeEvidenceOrigin,
     HigherTimeframeStructureEvidence,
     ShortSetupType,
     SignalAssemblyReport,
@@ -62,10 +63,16 @@ def make_report(status: SignalAssemblyStatus = SignalAssemblyStatus.SHORT_READY)
         discovery_records=(),
         higher_timeframe=HigherTimeframeStructureEvidence(
             symbol="BTCUSDT.P",
+            market_symbol="BTCUSDT",
             observed_at=NOW,
             daily_damaged=True,
             four_hour_damaged=True,
-            reasons=("fixture evidence",),
+            origin=HigherTimeframeEvidenceOrigin.DERIVED,
+            daily_zone_id="daily-zone",
+            daily_event_id="daily-break",
+            four_hour_zone_id="four-hour-zone",
+            four_hour_event_id="four-hour-break",
+            reasons=("derived fixture evidence",),
         ),
         gates=(
             GateDecision(
@@ -109,6 +116,8 @@ async def test_domain_store_persists_assembly_and_lifecycle_atomically():
     assert assembly.symbol == lifecycle.symbol == "BTCUSDT.P"
     assert assembly.payload["plan"]["objective_value"] == 98
     assert assembly.payload["setup_type"] == "FAILED_PULLBACK_SHORT"
+    assert assembly.payload["higher_timeframe"]["origin"] == "DERIVED"
+    assert assembly.payload["higher_timeframe"]["daily_event_id"] == "daily-break"
     assert lifecycle.payload["gates"][0]["state"] == "PASS"
     assert assembly.expires_at == lifecycle.expires_at
 
