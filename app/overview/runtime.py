@@ -10,3 +10,7 @@ provider = DatabaseOverviewProvider(database.session_factory)
 
 def get_overview_provider() -> OverviewSummaryProvider:
     return provider
+
+
+async def close_overview_database() -> None:
+    await database.dispose()

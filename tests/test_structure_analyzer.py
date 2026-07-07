@@ -33,11 +33,9 @@ def test_analyze_structure_returns_alert_for_outside_value():
     assert snapshot.needs_review is True
 
 
-def test_analyze_structure_rejects_invalid_reference_range():
-    item = StructureInput(symbol="TEST", current_value=5.0, reference_low=10.0, reference_high=5.0)
-
+def test_structure_input_rejects_invalid_reference_range():
     with pytest.raises(ValueError):
-        analyze_structure(item)
+        StructureInput(symbol="TEST", current_value=5.0, reference_low=10.0, reference_high=5.0)
 
 
 def test_input_from_watchlist_uses_entry_price():

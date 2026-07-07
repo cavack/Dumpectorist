@@ -26,7 +26,9 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Consecutive-failure telemetry and structured alert logs
 - Retention cleanup limited to runtime operational records
 - Atomic persistence of source snapshots, source health, and worker runs
-- Daily and 4H structure hard gates for final assembly
+- Non-OK source payloads stored as diagnostics instead of market snapshots
+- Finite-value validation for structure, planning, benchmark, LBank, and backtest data
+- Daily and 4H structure gates in the current assembly shell
 - End-to-end structure, setup, flow, execution, consensus, and planning assembly
 - Complete gate-reason audit trail with skipped-gate reporting
 - Atomic persistence of assembly and lifecycle records
@@ -42,7 +44,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Deterministic backtest runner and metrics report
 - Audit event conversion and backup manifests
 - Database and Redis operational probes
-- GitHub Actions with Ruff and pytest
+- GitHub Actions with compile, Compose, Ruff, and pytest checks
 
 ## Configuration Rules
 
@@ -60,6 +62,8 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Runtime jobs call public adapter `load()` methods and expose no order-placement interface.
 - A failed runtime job cannot cancel other due jobs.
 - Runtime retention does not delete signal assembly or lifecycle records.
+- Production settings reject placeholder database credentials.
+- PostgreSQL and Redis bind to host loopback by default.
 - `SHORT_READY` requires confirmed Daily and 4H structure damage plus every downstream hard gate.
 - Blocked assemblies receive a `HOLD` plan and `PENDING` lifecycle.
 
@@ -91,6 +95,8 @@ docker compose logs -f runtime-worker
 ```bash
 python -m pip install --upgrade pip
 pip install -e ".[dev]"
+python -m compileall -q app
+docker compose config --quiet
 ruff check .
 pytest -q
 ```
@@ -126,10 +132,11 @@ docs/                architecture and sprint documentation
 
 ## Current Status
 
-Sprints 0 through 10 and Sprints 11A through 11G are implemented as tested foundation layers. The next phase is dry-run validation, gate-frequency analysis, and threshold calibration without order placement.
+Sprints 0 through 10 and Sprints 11A through 11G are tested foundation layers. The full audit found that the next correct phase is real OHLCV ingestion and Daily/4H structure evidence, followed by failed reclaim/pullback logic. Dry-run validation comes only after those layers are implemented.
 
 ## Documentation
 
+- `docs/AUDIT_2026-07-07.md`
 - `docs/ADAPTERS.md`
 - `docs/LBANK.md`
 - `docs/BENCHMARKS.md`

@@ -37,6 +37,8 @@ def json_safe(value: Any) -> Any:
     if isinstance(value, (str, int, float, bool)):
         return value
     if isinstance(value, Decimal):
+        if not value.is_finite():
+            raise ValueError("persisted Decimal must be finite")
         return str(value)
     if isinstance(value, datetime):
         if value.tzinfo is None or value.utcoffset() is None:
@@ -63,6 +65,12 @@ def _record_symbol(job: ScheduledSourceJob, payload: AdapterPayload | None = Non
             if isinstance(raw, str) and raw.strip():
                 return raw.strip()
     return job.name
+
+
+def _payload_record_type(job: ScheduledSourceJob, payload: AdapterPayload) -> str:
+    if payload.health.state == AdapterState.OK:
+        return f"{job.kind.value.lower()}_snapshot"
+    return "source_diagnostic"
 
 
 class NullRuntimeStore:
@@ -119,8 +127,8 @@ class DomainRecordRuntimeStore:
         outcome: WorkerRunOutcome,
     ) -> None:
         symbol = _record_symbol(job, payload)
-        snapshot_type = f"{job.kind.value.lower()}_snapshot"
-        snapshot_payload = {
+        payload_record_type = _payload_record_type(job, payload)
+        source_payload = {
             "job_name": job.name,
             "adapter_name": payload.name,
             "kind": job.kind.value,
@@ -149,10 +157,10 @@ class DomainRecordRuntimeStore:
             repository = DomainRecordRepository(session)
             await repository.add(
                 DomainRecordInput(
-                    record_type=snapshot_type,
+                    record_type=payload_record_type,
                     symbol=symbol,
                     state=payload.health.state.value,
-                    payload=json_safe(snapshot_payload),
+                    payload=json_safe(source_payload),
                 )
             )
             await repository.add(

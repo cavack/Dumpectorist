@@ -41,6 +41,10 @@ class Settings(BaseSettings):
         if self.enable_live_actions:
             raise ValueError("live actions must remain disabled for the MVP")
 
+        normalized_env = self.app_env.strip().lower()
+        if normalized_env in {"production", "prod"} and "change_me" in self.database_url:
+            raise ValueError("production database credentials must not use change_me")
+
         required_symbols: dict[str, str] = {}
         if self.worker_enable_lbank:
             required_symbols["worker_lbank_symbol"] = self.worker_lbank_symbol

@@ -46,7 +46,6 @@ class RuntimeMetrics:
     status_counts: dict[WorkerRunStatus, int] = field(default_factory=dict)
     consecutive_failures: dict[str, int] = field(default_factory=dict)
     last_status: dict[str, WorkerRunStatus] = field(default_factory=dict)
-    _last_alerted_failure_count: dict[str, int] = field(default_factory=dict)
 
     def observe(
         self,
@@ -66,8 +65,7 @@ class RuntimeMetrics:
             if outcome.status in FAILURE_STATUSES:
                 failure_count = self.consecutive_failures.get(outcome.job_name, 0) + 1
                 self.consecutive_failures[outcome.job_name] = failure_count
-                last_alerted = self._last_alerted_failure_count.get(outcome.job_name, 0)
-                if failure_count >= failure_alert_threshold and failure_count > last_alerted:
+                if failure_count == failure_alert_threshold:
                     alerts.append(
                         RuntimeAlert(
                             job_name=outcome.job_name,
@@ -76,10 +74,8 @@ class RuntimeMetrics:
                             message=outcome.message,
                         )
                     )
-                    self._last_alerted_failure_count[outcome.job_name] = failure_count
             else:
                 self.consecutive_failures[outcome.job_name] = 0
-                self._last_alerted_failure_count.pop(outcome.job_name, None)
 
         return tuple(alerts)
 

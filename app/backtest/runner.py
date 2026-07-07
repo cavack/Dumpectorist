@@ -1,4 +1,5 @@
 from datetime import datetime
+from math import isfinite
 
 from app.backtest.models import (
     BacktestCase,
@@ -28,6 +29,8 @@ def _validate_plan(plan: PlanDraft) -> tuple[float, float, float]:
     entry = float(plan.entry_value)
     boundary = float(plan.boundary_value)
     objective = float(plan.objective_value)
+    if not all(isfinite(value) for value in (entry, boundary, objective)):
+        raise ValueError("short plan values must be finite")
     if not 0 < objective < entry < boundary:
         raise ValueError("short plan values must satisfy objective < entry < boundary")
     if plan.multiplier < 1 or plan.multiplier > 5:
@@ -52,6 +55,8 @@ def _validate_bars(bars: tuple[HistoricalBar, ...]) -> None:
             bar.low_value,
             bar.close_value,
         )
+        if not all(isfinite(float(value)) for value in values):
+            raise ValueError("bar values must be finite")
         if any(value <= 0 for value in values):
             raise ValueError("bar values must be positive")
         if bar.low_value > min(bar.open_value, bar.close_value):
@@ -108,7 +113,6 @@ def run_backtest(case: BacktestCase) -> BacktestResult:
                 index,
                 True,
             )
-
         if stop_touched:
             return _build_result(
                 case.plan,
@@ -118,7 +122,6 @@ def run_backtest(case: BacktestCase) -> BacktestResult:
                 index,
                 False,
             )
-
         if target_touched:
             return _build_result(
                 case.plan,
