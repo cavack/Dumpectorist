@@ -32,12 +32,20 @@ def _aware_utc(value: datetime) -> datetime:
     return value.astimezone(timezone.utc)
 
 
+def _canonical(value: object) -> object:
+    if isinstance(value, datetime):
+        return _aware_utc(value).isoformat()
+    if isinstance(value, Decimal):
+        return format(value.normalize(), "f")
+    if isinstance(value, dict):
+        return tuple(sorted((str(key), _canonical(item)) for key, item in value.items()))
+    if isinstance(value, (list, tuple)):
+        return tuple(_canonical(item) for item in value)
+    return value
+
+
 def _equal(current: object, expected: object) -> bool:
-    if isinstance(current, datetime) and isinstance(expected, datetime):
-        return _aware_utc(current) == _aware_utc(expected)
-    if isinstance(current, Decimal) and isinstance(expected, Decimal):
-        return current == expected
-    return current == expected
+    return _canonical(current) == _canonical(expected)
 
 
 class HtfStructureRepository:
