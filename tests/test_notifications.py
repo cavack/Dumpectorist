@@ -3,7 +3,7 @@ import pytest
 from app.notifications.delivery import DisabledDelivery
 from app.notifications.formatter import format_plan_message
 from app.notifications.models import DeliveryStatus, NotificationChannel
-from app.strategy.review import PlanDraft, PlanStatus
+from app.planning.models import PlanDraft, PlanStatus
 
 
 def test_ready_plan_formats_all_required_values():
