@@ -1,8 +1,12 @@
 from dataclasses import dataclass
 from datetime import datetime
+from hashlib import sha256
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.benchmark_models import BenchmarkSnapshot
 from app.adapters.lbank_models import LBankExecutionSnapshot
+from app.db.repository import DomainRecordInput, DomainRecordRepository
 from app.execution.consensus import (
     ConsensusRules,
     ConsensusStatus,
@@ -13,6 +17,7 @@ from app.execution.liquidity_models import ExecutionReadiness, OrderRecommendati
 from app.execution.order_constraints import ExecutionOrderRequest
 from app.execution.reality import ExecutionRealityReport, evaluate_execution_reality
 from app.execution.symbol_mapping import CrossExchangeSymbolMap
+from app.runtime.store import json_safe
 
 
 @dataclass(frozen=True)
@@ -44,6 +49,19 @@ class ReadinessAudit:
     @property
     def executable(self):
         return self.readiness == ExecutionReadiness.EXECUTABLE
+
+    @property
+    def audit_id(self):
+        raw = "|".join(
+            (
+                self.symbol,
+                self.evaluated_at.isoformat(),
+                self.readiness.value,
+                self.consensus.status.value,
+                str(self.consensus.usable_sources),
+            )
+        )
+        return f"exec_{sha256(raw.encode('utf-8')).hexdigest()[:24]}"
 
 
 def evaluate_readiness(
@@ -135,4 +153,30 @@ def evaluate_readiness(
         source_clocks=tuple(clock_audit),
         reasons=tuple(dict.fromkeys(reasons)),
         warnings=tuple(dict.fromkeys(warnings)),
+    )
+
+
+async def persist_readiness_audit(
+    session: AsyncSession,
+    audit: ReadinessAudit,
+):
+    repository = DomainRecordRepository(session)
+    return await repository.add(
+        DomainRecordInput(
+            record_type="execution_gate_audit",
+            symbol=audit.symbol,
+            state=audit.readiness.value,
+            payload=json_safe(
+                {
+                    "audit_id": audit.audit_id,
+                    "evaluated_at": audit.evaluated_at,
+                    "recommendation": audit.recommendation,
+                    "reality": audit.reality,
+                    "consensus": audit.consensus,
+                    "source_clocks": audit.source_clocks,
+                    "reasons": audit.reasons,
+                    "warnings": audit.warnings,
+                }
+            ),
+        )
     )
