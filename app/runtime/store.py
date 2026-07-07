@@ -12,6 +12,8 @@ from app.candles.repository import OhlcvCandleRepository
 from app.candles.serialization import batch_from_payload_data
 from app.db.repository import DomainRecordInput, DomainRecordRepository
 from app.runtime.models import ScheduledSourceJob, SourceJobKind, WorkerRunOutcome
+from app.structure.htf_engine import analyze_higher_timeframe
+from app.structure.htf_repository import HtfStructureRepository
 
 
 class RuntimeStore(Protocol):
@@ -160,12 +162,25 @@ class DomainRecordRuntimeStore:
                 batch = batch_from_payload_data(payload.data)
                 if not batch.candles:
                     raise ValueError("OK structure payload must contain closed candles")
-                upsert = await OhlcvCandleRepository(session).upsert_batch(batch)
+                candle_upsert = await OhlcvCandleRepository(session).upsert_batch(batch)
+                analysis = analyze_higher_timeframe(batch)
+                structure_upsert = await HtfStructureRepository(session).upsert_analysis(
+                    analysis
+                )
                 source_payload["candle_upsert"] = {
-                    "inserted": upsert.inserted,
-                    "updated": upsert.updated,
-                    "unchanged": upsert.unchanged,
-                    "total": upsert.total,
+                    "inserted": candle_upsert.inserted,
+                    "updated": candle_upsert.updated,
+                    "unchanged": candle_upsert.unchanged,
+                    "total": candle_upsert.total,
+                }
+                source_payload["htf_analysis"] = analysis
+                source_payload["structure_upsert"] = {
+                    "zones_inserted": structure_upsert.zones_inserted,
+                    "zones_updated": structure_upsert.zones_updated,
+                    "zones_unchanged": structure_upsert.zones_unchanged,
+                    "events_inserted": structure_upsert.events_inserted,
+                    "events_updated": structure_upsert.events_updated,
+                    "events_unchanged": structure_upsert.events_unchanged,
                 }
 
             repository = DomainRecordRepository(session)
