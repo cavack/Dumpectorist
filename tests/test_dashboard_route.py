@@ -2,13 +2,17 @@ from datetime import datetime
 
 from fastapi.testclient import TestClient
 
+from app.api.routes_dashboard import get_overview_provider
 from app.main import app
+from app.overview.summary_provider import EmptySummaryProvider
 
 
-def test_dashboard_summary_reports_empty_no_store_state():
-    client = TestClient(app)
-
-    response = client.get("/api/v1/dashboard/summary")
+def test_dashboard_summary_supports_provider_override():
+    app.dependency_overrides[get_overview_provider] = EmptySummaryProvider
+    try:
+        response = TestClient(app).get("/api/v1/dashboard/summary")
+    finally:
+        app.dependency_overrides.pop(get_overview_provider, None)
 
     assert response.status_code == 200
     payload = response.json()
