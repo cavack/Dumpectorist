@@ -11,6 +11,7 @@ RUNTIME_RECORD_TYPES = (
     "execution_snapshot",
     "benchmark_snapshot",
     "discovery_snapshot",
+    "source_diagnostic",
     "source_health",
     "worker_run",
     "worker_metrics",
