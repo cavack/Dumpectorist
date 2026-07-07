@@ -141,14 +141,18 @@
 - [x] Controlled degraded behavior
 - [x] Tests and documentation
 
-## Next
-
 ### Sprint 11D — Cross-Exchange Consensus
 
-- [ ] Fresh-source median price
-- [ ] Per-source deviation and confidence impact
-- [ ] Minimum-source and stale-source rules
-- [ ] Tests and documentation
+- [x] Explicit symbol mapping
+- [x] Fresh-source median price
+- [x] Per-source deviation reporting
+- [x] LBank deviation thresholds
+- [x] Minimum-source and stale-source rules
+- [x] Benchmark dispersion hard gate
+- [x] LBank execution status propagation
+- [x] Tests and documentation
+
+## Next
 
 ### Sprint 11E — Runtime Orchestration
 
@@ -156,3 +160,10 @@
 - [ ] Persistence of source snapshots and health
 - [ ] Worker-level failure isolation
 - [ ] Tests and documentation
+
+### Sprint 11F — End-to-End Signal Assembly
+
+- [ ] Connect discovery, structure, setup, execution, consensus, and planning
+- [ ] Preserve hard-gate explanations
+- [ ] Persist complete signal lifecycle records
+- [ ] Scenario tests and documentation
