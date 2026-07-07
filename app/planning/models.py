@@ -70,15 +70,10 @@ class PlanRequest:
         entry = positive_finite_float(self.entry_value, name="entry_value")
         boundary = positive_finite_float(self.boundary_value, name="boundary_value")
         ratio = positive_finite_float(self.ratio, name="ratio")
-        if boundary <= entry:
-            raise ValueError("boundary must be above entry")
         if isinstance(self.multiplier, bool) or not isinstance(self.multiplier, int):
             raise ValueError("multiplier must be an integer")
         if self.multiplier < 1 or self.multiplier > 5:
             raise ValueError("multiplier must be between 1 and 5")
-        objective = entry - ((boundary - entry) * ratio)
-        if objective <= 0:
-            raise ValueError("objective must remain positive")
         object.__setattr__(self, "symbol", normalized_symbol)
         object.__setattr__(self, "entry_value", entry)
         object.__setattr__(self, "boundary_value", boundary)
