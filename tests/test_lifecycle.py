@@ -9,7 +9,7 @@ from app.lifecycle.service import (
     close_lifecycle,
     create_lifecycle,
 )
-from app.strategy.review import PlanDraft, PlanStatus
+from app.planning.models import PlanDraft, PlanStatus
 
 
 NOW = datetime(2026, 7, 7, 12, 0, tzinfo=timezone.utc)
