@@ -4,8 +4,8 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 
 ## Implemented
 
-- FastAPI application and health endpoint
-- Docker Compose with PostgreSQL and Redis
+- FastAPI application and health endpoints
+- Docker Compose with PostgreSQL and Redis health checks
 - Environment-based settings validation
 - Typed source-adapter contracts and parser helpers
 - Watchlist workflow
@@ -18,6 +18,8 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Read-only dashboard summary API
 - SQLAlchemy persistence foundation and Alembic migration
 - Deterministic backtest runner and metrics report
+- Audit event conversion and backup manifests
+- Database and Redis operational probes
 - GitHub Actions with Ruff and pytest
 
 ## Configuration Rules
@@ -41,6 +43,7 @@ Endpoints:
 
 ```text
 GET /api/v1/health
+GET /api/v1/health/operations
 GET /api/v1/dashboard/summary
 ```
 
@@ -65,6 +68,7 @@ app/
   flow/             candidate flow checks
   lifecycle/        lifecycle transitions and expiry handling
   notifications/    message formatting and delivery interfaces
+  ops/              audit, backup manifest, and dependency health
   overview/         read-only summary models, provider, and aggregation
   planning/         deterministic plan models and construction
   setups/           setup classification
@@ -79,7 +83,7 @@ docs/                architecture and sprint documentation
 
 ## Current Status
 
-Sprints 0 through 9 plus Sprint 10A persistence and Sprint 10B backtest foundations are implemented. The dashboard remains in `NO_STORE` mode until a persistence-backed provider is connected.
+Sprints 0 through 10 are implemented as tested foundation layers. The dashboard remains in `NO_STORE` mode until a persistence-backed provider is connected.
 
 ## Documentation
 
@@ -93,4 +97,5 @@ Sprints 0 through 9 plus Sprint 10A persistence and Sprint 10B backtest foundati
 - `docs/DASHBOARD.md`
 - `docs/PERSISTENCE.md`
 - `docs/BACKTEST.md`
+- `docs/OPS.md`
 - `docs/SPRINTS.md`

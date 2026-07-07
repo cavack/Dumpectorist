@@ -91,10 +91,20 @@
 - [x] Input validation
 - [x] Tests and documentation
 
-## Next
-
 ### Sprint 10C — Operations
 
-- [ ] Backups and audit logs
-- [ ] Operational health checks
-- [ ] Tests and documentation
+- [x] Audit event conversion
+- [x] Backup manifests and checksums
+- [x] Database and Redis probes
+- [x] Operational health endpoint
+- [x] Docker health checks
+- [x] Tests and documentation
+
+## Next
+
+### Sprint 11 — Runtime Integration
+
+- [ ] Persistence-backed overview provider
+- [ ] Concrete public market-data adapters
+- [ ] Source freshness and health reporting
+- [ ] Integration tests and documentation

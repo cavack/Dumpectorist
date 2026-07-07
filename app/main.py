@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from app.api.routes_dashboard import router as dashboard_router
 from app.api.routes_health import router as health_router
+from app.api.routes_operations import router as operations_router
 from app.core.config import settings
 
 
@@ -14,6 +15,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(health_router, prefix="/api/v1", tags=["health"])
     app.include_router(dashboard_router, prefix="/api/v1", tags=["dashboard"])
+    app.include_router(operations_router, prefix="/api/v1", tags=["operations"])
     return app
 
 
