@@ -33,17 +33,13 @@
 
 ### Sprint 11C1 — Perpetual Benchmarks
 
-- [x] MEXC USDT perpetual
-- [x] Gate USDT futures
-- [x] Bybit linear perpetual
-- [x] Binance USD-M perpetual
+- [x] MEXC, Gate, Bybit, and Binance USD-M adapters
 - [x] Locked benchmark-only role
 - [x] Source freshness and health reporting
 
 ### Sprint 11C2 — Discovery Sources
 
-- [x] DEX Screener feeds
-- [x] CoinGecko markets, categories, and universe
+- [x] DEX Screener and CoinGecko feeds
 - [x] Locked discovery-only role
 - [x] TTL cache and request budgets
 
@@ -51,8 +47,7 @@
 
 - [x] Explicit symbol mapping
 - [x] Fresh-source median
-- [x] Deviation and dispersion checks
-- [x] Minimum-source rules
+- [x] Deviation, dispersion, and minimum-source checks
 - [x] LBank status propagation
 
 ### Sprint 11E — Runtime Orchestration
@@ -62,29 +57,28 @@
 - [x] In-flight duplicate prevention
 - [x] Worker failure isolation
 - [x] Atomic source snapshot, health, and run persistence
-- [x] Graceful worker stop event
 
 ### Sprint 11F — End-to-End Assembly
 
-- [x] Daily and 4H structure evidence gate
-- [x] Explicit setup variants
-- [x] Structure, setup, and flow composition
-- [x] LBank validation and benchmark consensus composition
+- [x] Daily and 4H evidence gate
+- [x] Structure, setup, flow, execution, consensus, and planning composition
 - [x] Entry-distance validation
-- [x] Planning and lifecycle composition
-- [x] Complete gate and skipped-stage audit trail
-- [x] Atomic assembly and lifecycle persistence
-- [x] Scenario and database tests
-
-## Next
+- [x] Complete gate audit trail
+- [x] Assembly and lifecycle persistence
 
 ### Sprint 11G — Runtime Deployment
 
-- [ ] Dedicated worker entrypoint
-- [ ] Configuration-driven job registry
-- [ ] Process supervision and graceful shutdown wiring
-- [ ] Record retention and cleanup
-- [ ] Operational metrics and alerting
+- [x] Dedicated worker entrypoint
+- [x] Configuration-driven execution, benchmark, and discovery registry
+- [x] Signal-based graceful shutdown
+- [x] Supervisor cycle and structured outcome logs
+- [x] Consecutive-failure telemetry and alert threshold
+- [x] Runtime record retention and protected assembly records
+- [x] One-shot migration service before API and worker startup
+- [x] Docker restart policy and worker shutdown grace period
+- [x] Registry, retention, telemetry, and supervisor tests
+
+## Next
 
 ### Sprint 11H — Dry-run Validation
 
@@ -92,3 +86,10 @@
 - [ ] Gate-frequency and failure analysis
 - [ ] Threshold calibration reports
 - [ ] No-order end-to-end validation
+
+### Sprint 11I — Operational Read Models
+
+- [ ] Worker status summary from persisted runs
+- [ ] Source freshness dashboard
+- [ ] Retention and cleanup history
+- [ ] Alert history and acknowledgement model
