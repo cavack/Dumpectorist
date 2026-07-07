@@ -37,7 +37,10 @@ jobs:
           docker compose config --quiet
 
       - name: Run Ruff
-        run: ruff check .
+        shell: bash
+        run: |
+          set -o pipefail
+          ruff check . 2>&1 | tee pytest.log
 
       - name: Run tests
         shell: bash

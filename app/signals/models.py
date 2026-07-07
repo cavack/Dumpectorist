@@ -3,7 +3,10 @@ from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
 
-from app.adapters.benchmark_models import BenchmarkSnapshot
+from app.adapters.benchmark_models import (
+    BenchmarkSnapshot,
+    BenchmarkSource,
+)
 from app.adapters.discovery_models import DiscoveryRecord
 from app.adapters.lbank_models import LBankExecutionSnapshot
 from app.execution.consensus import ConsensusRules, CrossExchangeConsensusReport
@@ -39,6 +42,11 @@ class GateState(StrEnum):
     SKIP = "SKIP"
 
 
+class HigherTimeframeEvidenceOrigin(StrEnum):
+    MANUAL = "MANUAL"
+    DERIVED = "DERIVED"
+
+
 @dataclass(frozen=True)
 class GateDecision:
     name: str
@@ -57,16 +65,34 @@ class GateDecision:
 @dataclass(frozen=True)
 class HigherTimeframeStructureEvidence:
     symbol: str
+    market_symbol: str
     observed_at: datetime
     daily_damaged: bool
     four_hour_damaged: bool
+    origin: HigherTimeframeEvidenceOrigin
+    daily_zone_id: str | None = None
+    daily_event_id: str | None = None
+    four_hour_zone_id: str | None = None
+    four_hour_event_id: str | None = None
     reasons: tuple[str, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
-        if not self.symbol.strip():
-            raise ValueError("higher-timeframe symbol is required")
+        symbol = self.symbol.strip()
+        market_symbol = self.market_symbol.strip().upper()
+        if not symbol or not market_symbol:
+            raise ValueError("higher-timeframe canonical and market symbols are required")
         if self.observed_at.tzinfo is None or self.observed_at.utcoffset() is None:
             raise ValueError("higher-timeframe observed_at must be timezone-aware")
+        if self.origin != HigherTimeframeEvidenceOrigin.DERIVED:
+            raise ValueError("production assembly requires derived higher-timeframe evidence")
+        if self.daily_damaged and not (self.daily_zone_id and self.daily_event_id):
+            raise ValueError("damaged Daily evidence requires zone and event IDs")
+        if self.four_hour_damaged and not (
+            self.four_hour_zone_id and self.four_hour_event_id
+        ):
+            raise ValueError("damaged 4H evidence requires zone and event IDs")
+        object.__setattr__(self, "symbol", symbol)
+        object.__setattr__(self, "market_symbol", market_symbol)
 
 
 @dataclass(frozen=True)
@@ -104,6 +130,13 @@ class SignalAssemblyRequest:
         normalized_symbol = self.symbol.strip()
         if not normalized_symbol:
             raise ValueError("assembly symbol is required")
+        expected_structure_symbol = self.symbol_map.benchmark_symbols.get(
+            BenchmarkSource.BYBIT
+        )
+        if not expected_structure_symbol:
+            raise ValueError("Bybit structure symbol mapping is required")
+        if self.higher_timeframe.market_symbol != expected_structure_symbol:
+            raise ValueError("derived structure market symbol does not match symbol map")
         object.__setattr__(self, "symbol", normalized_symbol)
 
 
