@@ -39,6 +39,11 @@ class GateState(StrEnum):
     SKIP = "SKIP"
 
 
+class HigherTimeframeEvidenceOrigin(StrEnum):
+    MANUAL = "MANUAL"
+    DERIVED = "DERIVED"
+
+
 @dataclass(frozen=True)
 class GateDecision:
     name: str
@@ -60,13 +65,36 @@ class HigherTimeframeStructureEvidence:
     observed_at: datetime
     daily_damaged: bool
     four_hour_damaged: bool
+    origin: HigherTimeframeEvidenceOrigin = HigherTimeframeEvidenceOrigin.MANUAL
+    market_symbol: str | None = None
+    daily_zone_id: str | None = None
+    daily_event_id: str | None = None
+    four_hour_zone_id: str | None = None
+    four_hour_event_id: str | None = None
     reasons: tuple[str, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
-        if not self.symbol.strip():
+        symbol = self.symbol.strip()
+        if not symbol:
             raise ValueError("higher-timeframe symbol is required")
         if self.observed_at.tzinfo is None or self.observed_at.utcoffset() is None:
             raise ValueError("higher-timeframe observed_at must be timezone-aware")
+        market_symbol = (
+            None if self.market_symbol is None else self.market_symbol.strip().upper()
+        )
+        if self.origin == HigherTimeframeEvidenceOrigin.DERIVED:
+            if not market_symbol:
+                raise ValueError("derived evidence requires market_symbol")
+            if self.daily_damaged and not (
+                self.daily_zone_id and self.daily_event_id
+            ):
+                raise ValueError("damaged Daily evidence requires zone and event IDs")
+            if self.four_hour_damaged and not (
+                self.four_hour_zone_id and self.four_hour_event_id
+            ):
+                raise ValueError("damaged 4H evidence requires zone and event IDs")
+        object.__setattr__(self, "symbol", symbol)
+        object.__setattr__(self, "market_symbol", market_symbol)
 
 
 @dataclass(frozen=True)
