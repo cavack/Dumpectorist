@@ -63,6 +63,25 @@ def parse_epoch_ms(value: Any, *, field: str, optional: bool = False) -> datetim
     return datetime.fromtimestamp(milliseconds / 1000, tz=timezone.utc)
 
 
+def parse_epoch_seconds(
+    value: Any,
+    *,
+    field: str,
+    optional: bool = False,
+) -> datetime | None:
+    if value in (None, "") and optional:
+        return None
+    if isinstance(value, bool):
+        raise ParserError(f"{field} must be a timestamp")
+    try:
+        seconds = Decimal(str(value))
+    except (InvalidOperation, ValueError) as error:
+        raise ParserError(f"{field} must be a timestamp") from error
+    if not seconds.is_finite() or seconds <= 0:
+        raise ParserError(f"{field} must be positive")
+    return datetime.fromtimestamp(float(seconds), tz=timezone.utc)
+
+
 def parse_sequence_book(
     rows: Any,
     *,
