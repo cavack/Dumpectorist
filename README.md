@@ -2,6 +2,16 @@
 
 Dumpectorist is an MVP foundation for a market-structure monitoring workflow. The repository contains deterministic domain layers, configuration safeguards, tests, CI, and a supervised public-data worker.
 
+## Program Governance
+
+- Product epic: [#41 — Deliver the Dumpectorist P0 platform](https://github.com/cavack/Dumpectorist/issues/41)
+- Current implementation issue: [#42 — Real closed-candle OHLCV foundation](https://github.com/cavack/Dumpectorist/issues/42)
+- Governance contract: `docs/PROJECT_GOVERNANCE.md`
+- Sequential delivery plan: `docs/DELIVERY_ROADMAP.md`
+- Test-data and evidence policy: `docs/TESTING_POLICY.md`
+
+The project is delivered through small, sequential child PRs. A PR must describe only work present in its diff and must not claim future work as complete.
+
 ## Implemented
 
 - FastAPI application and health endpoints
@@ -126,7 +136,7 @@ app/
   worker.py          dedicated runtime worker entrypoint
 migrations/          Alembic migration environment and versions
 tests/               pytest suite
-docs/                architecture and sprint documentation
+docs/                architecture, governance, and sprint documentation
 .github/             CI and repository templates
 ```
 
@@ -134,8 +144,13 @@ docs/                architecture and sprint documentation
 
 Sprints 0 through 10 and Sprints 11A through 11G are tested foundation layers. The full audit found that the next correct phase is real OHLCV ingestion and Daily/4H structure evidence, followed by failed reclaim/pullback logic. Dry-run validation comes only after those layers are implemented.
 
+The active delivery order is tracked in `docs/DELIVERY_ROADMAP.md`. The incomplete `real-ohlcv-foundation` branch is the starting point for Sprint 12A; the empty `agent/real-ohlcv-candle-foundation` branch is not the continuation branch.
+
 ## Documentation
 
+- `docs/PROJECT_GOVERNANCE.md`
+- `docs/DELIVERY_ROADMAP.md`
+- `docs/TESTING_POLICY.md`
 - `docs/AUDIT_2026-07-07.md`
 - `docs/ADAPTERS.md`
 - `docs/LBANK.md`
