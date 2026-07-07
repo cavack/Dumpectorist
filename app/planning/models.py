@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-from app.core.numbers import positive_finite_float
+from app.core.numbers import finite_float, positive_finite_float
 
 
 class PlanStatus(StrEnum):
@@ -28,7 +28,7 @@ class PlanDraft:
             raise ValueError("multiplier must be an integer")
         if self.multiplier < 1 or self.multiplier > 5:
             raise ValueError("multiplier must be between 1 and 5")
-        ratio = positive_finite_float(self.ratio, name="ratio")
+        ratio = finite_float(self.ratio, name="ratio")
 
         normalized_values: dict[str, float | None] = {}
         for name, value in (
@@ -37,16 +37,15 @@ class PlanDraft:
             ("objective_value", self.objective_value),
         ):
             normalized_values[name] = (
-                positive_finite_float(value, name=name) if value is not None else None
+                finite_float(value, name=name) if value is not None else None
             )
 
-        if self.status == PlanStatus.READY:
-            if any(value is None for value in normalized_values.values()):
-                raise ValueError("ready plan requires entry, boundary, and objective")
+        complete_values = all(value is not None for value in normalized_values.values())
+        if complete_values:
             entry = normalized_values["entry_value"]
             boundary = normalized_values["boundary_value"]
             objective = normalized_values["objective_value"]
-            if not objective < entry < boundary:
+            if not 0 < objective < entry < boundary:
                 raise ValueError("short plan must satisfy objective < entry < boundary")
 
         object.__setattr__(self, "symbol", normalized_symbol)
@@ -67,13 +66,11 @@ class PlanRequest:
         normalized_symbol = self.symbol.strip()
         if not normalized_symbol:
             raise ValueError("symbol is required")
-        entry = positive_finite_float(self.entry_value, name="entry_value")
-        boundary = positive_finite_float(self.boundary_value, name="boundary_value")
-        ratio = positive_finite_float(self.ratio, name="ratio")
+        entry = finite_float(self.entry_value, name="entry_value")
+        boundary = finite_float(self.boundary_value, name="boundary_value")
+        ratio = finite_float(self.ratio, name="ratio")
         if isinstance(self.multiplier, bool) or not isinstance(self.multiplier, int):
             raise ValueError("multiplier must be an integer")
-        if self.multiplier < 1 or self.multiplier > 5:
-            raise ValueError("multiplier must be between 1 and 5")
         object.__setattr__(self, "symbol", normalized_symbol)
         object.__setattr__(self, "entry_value", entry)
         object.__setattr__(self, "boundary_value", boundary)
