@@ -88,47 +88,85 @@
 - [x] Add compile and Compose checks to CI
 - [x] Record blueprint gaps and corrected implementation order
 
-## Correct Next Sequence
+## P0 Delivery Sequence
 
-### Sprint 12A — Real OHLCV Foundation
+Program epic: #41
 
-- [ ] Typed closed-candle models for Daily, 4H, 15m, and 5m
-- [ ] Official public kline adapter with strict parsing
-- [ ] Candle freshness and closed-candle validation
-- [ ] Normalized candle persistence and idempotent upsert
-- [ ] Runtime candle jobs and source health
-- [ ] Real captured response fixtures and integration tests
+### Sprint 12A — Real Closed-Candle OHLCV Foundation (#42)
 
-### Sprint 12B — Daily/4H Structure Engine
+- [x] Typed closed-candle models for Daily, 4H, 15m, and 5m
+- [x] Public Bybit kline adapter with strict parsing and non-execution role
+- [x] Candle freshness and closed-candle validation
+- [x] Normalized candle persistence and idempotent upsert
+- [x] Runtime Daily/4H structure jobs and source health
+- [x] Atomic candle, snapshot, health, and worker-run persistence
+- [x] Configuration, migration-chain, domain, parser, repository, and runtime tests added
+- [x] Source-role, retention, configuration, and rollback documentation added
+- [ ] Captured live public-response fixture committed with provenance
+- [ ] Compile, Ruff, pytest, Compose, and migration checks verified
+- [ ] Draft PR reviewed and merged
+
+### Sprint 12B — Daily/4H Structure Engine (#44)
 
 - [ ] Support zones derived from closed candles
 - [ ] Daily and 4H structure-break events
-- [ ] Evidence timestamps and invalidation
-- [ ] Replace manual boolean evidence in final assembly
+- [ ] Evidence timestamps, idempotency, invalidation, and expiry
+- [ ] Replace manual boolean evidence in production assembly
 
-### Sprint 12C — Failed Reclaim/Pullback Engine
+### Sprint 12C — Successful Reclaim and Failed Pullback (#45)
 
 - [ ] Reclaim attempt detection
-- [ ] Failed reclaim confirmation
+- [ ] Successful-reclaim cancellation
+- [ ] Failed reclaim and failed-pullback confirmation
 - [ ] Breakdown, failed-pullback, and continuation-specific rules
-- [ ] Anti-late and liquidity-cliff gates
+- [ ] Setup ageing and invalidation
 
-### Sprint 12D — Risk and Target Planning
+### Sprint 12D — Execution Reality and Liquidity (#46)
 
-- [ ] Tick-aware invalidation
-- [ ] TP ladder
-- [ ] Risk-free movement rules
-- [ ] Maximum multiplier enforcement in final plan
+- [ ] LBank contract, freshness, spread, depth, precision, and minimum-order gates
+- [ ] Liquidity-cliff and size-specific slippage
+- [ ] Cross-exchange deviation and dispersion hard gates
+- [ ] Explicit execution readiness and failure states
 
-### Sprint 12E — Dry-run Validation
+### Sprint 12E — Explainable Scoring and Planning (#47)
 
-- [ ] Persisted dry-run candidate review
-- [ ] Gate-frequency and failure analysis
-- [ ] Threshold calibration reports
-- [ ] No-order end-to-end validation
+- [ ] Versioned component scores and hard-gate precedence
+- [ ] Setup-specific anti-late rules
+- [ ] Precision-aware entry, invalidation, stop, and target ladder
+- [ ] Fees, slippage, gross RR, net RR, and bounded leverage
+- [ ] Partial exits and risk-free rules
 
-### Sprint 12F — Operational Read Models
+### Sprint 12F — Final Assembly and Lifecycle (#48)
 
-- [ ] Worker and candle-source freshness summary
-- [ ] Retention and cleanup history
-- [ ] Alert history and acknowledgement model
+- [ ] Final gate-audited signal assembly
+- [ ] Evidence, reasons, warnings, and source timestamps
+- [ ] Lifecycle transition persistence and idempotency
+- [ ] Expiry, cancellation, invalidation, and target milestones
+
+### Sprint 12G — Telegram Delivery (#49)
+
+- [ ] Authorized commands and role checks
+- [ ] Real delivery, formatting, retries, and deduplication
+- [ ] Lifecycle and degraded-data notifications
+- [ ] Delivery and administrative audit records
+
+### Sprint 12H — Dashboard and Operational API (#50)
+
+- [ ] Repository-backed watchlist and signal views
+- [ ] Source, worker, and candle-freshness views
+- [ ] Gate audit, settings, and incident views
+- [ ] Honest empty and unavailable states
+
+### Sprint 12I — Setup-Based Backtest and Calibration (#51)
+
+- [ ] Fees, slippage, expiry, partial exits, and risk-free transitions
+- [ ] Fake-break, reclaim, missed-entry, and late-entry scenarios
+- [ ] Separate setup-specific performance reports
+- [ ] Gate-frequency and threshold-calibration reports
+
+### Sprint 12J — Production Operations and Recovery (#52)
+
+- [ ] Watchdog, kill switches, maintenance mode, and incidents
+- [ ] Security and administrative audit trails
+- [ ] Scheduled backups, checksums, retention, and restore verification
+- [ ] Deployment, rollback, and no-order live dry-run approval

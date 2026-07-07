@@ -1,12 +1,14 @@
 from app.adapters.binance_futures import BinanceUsdMAdapter
 from app.adapters.bybit_futures import BybitLinearPerpetualAdapter
+from app.adapters.bybit_kline import BybitKlineAdapter
 from app.adapters.coingecko import CoinGeckoDiscoveryAdapter, CoinGeckoFeed
 from app.adapters.dex_screener import DexScreenerAdapter, DexScreenerFeed
 from app.adapters.gate_public import GateUsdtFuturesAdapter
 from app.adapters.lbank import LBankPublicAdapter
 from app.adapters.mexc_futures import MexcUsdtPerpetualAdapter
+from app.candles.models import CandleInterval
 from app.core.config import Settings
-from app.runtime.factory import benchmark_job, discovery_job, execution_job
+from app.runtime.factory import benchmark_job, discovery_job, execution_job, structure_job
 from app.runtime.models import ScheduledSourceJob
 
 
@@ -56,6 +58,35 @@ def build_runtime_jobs(settings: Settings) -> tuple[ScheduledSourceJob, ...]:
                     timeout_seconds=timeout,
                     initial_delay_seconds=4,
                     name="gate-usdt-benchmark",
+                ),
+            )
+        )
+
+    if settings.worker_enable_ohlcv:
+        interval = settings.worker_ohlcv_interval_seconds
+        jobs.extend(
+            (
+                structure_job(
+                    BybitKlineAdapter(
+                        symbol=settings.worker_ohlcv_symbol,
+                        interval=CandleInterval.D1,
+                        limit=settings.worker_ohlcv_limit,
+                    ),
+                    interval_seconds=interval,
+                    timeout_seconds=timeout,
+                    initial_delay_seconds=5,
+                    name="bybit-ohlcv-1d",
+                ),
+                structure_job(
+                    BybitKlineAdapter(
+                        symbol=settings.worker_ohlcv_symbol,
+                        interval=CandleInterval.H4,
+                        limit=settings.worker_ohlcv_limit,
+                    ),
+                    interval_seconds=interval,
+                    timeout_seconds=timeout,
+                    initial_delay_seconds=6,
+                    name="bybit-ohlcv-4h",
                 ),
             )
         )

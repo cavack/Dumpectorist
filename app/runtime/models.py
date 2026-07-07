@@ -9,6 +9,7 @@ from app.adapters.models import AdapterPayload, AdapterState
 class SourceJobKind(StrEnum):
     EXECUTION = "EXECUTION"
     BENCHMARK = "BENCHMARK"
+    STRUCTURE = "STRUCTURE"
     DISCOVERY = "DISCOVERY"
 
 

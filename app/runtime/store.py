@@ -8,8 +8,10 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.adapters.models import AdapterPayload, AdapterState
+from app.candles.repository import OhlcvCandleRepository
+from app.candles.serialization import batch_from_payload_data
 from app.db.repository import DomainRecordInput, DomainRecordRepository
-from app.runtime.models import ScheduledSourceJob, WorkerRunOutcome
+from app.runtime.models import ScheduledSourceJob, SourceJobKind, WorkerRunOutcome
 
 
 class RuntimeStore(Protocol):
@@ -154,6 +156,18 @@ class DomainRecordRuntimeStore:
         }
 
         async with self.session_factory() as session:
+            if job.kind == SourceJobKind.STRUCTURE and payload.health.state == AdapterState.OK:
+                batch = batch_from_payload_data(payload.data)
+                if not batch.candles:
+                    raise ValueError("OK structure payload must contain closed candles")
+                upsert = await OhlcvCandleRepository(session).upsert_batch(batch)
+                source_payload["candle_upsert"] = {
+                    "inserted": upsert.inserted,
+                    "updated": upsert.updated,
+                    "unchanged": upsert.unchanged,
+                    "total": upsert.total,
+                }
+
             repository = DomainRecordRepository(session)
             await repository.add(
                 DomainRecordInput(

@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     worker_source_timeout_seconds: float = Field(default=8.0, gt=0, le=120)
     worker_execution_interval_seconds: float = Field(default=5.0, gt=0, le=3600)
     worker_benchmark_interval_seconds: float = Field(default=10.0, gt=0, le=3600)
+    worker_ohlcv_interval_seconds: float = Field(default=300.0, gt=0, le=86400)
     worker_discovery_interval_seconds: float = Field(default=300.0, gt=0, le=86400)
     worker_cleanup_interval_seconds: float = Field(default=3600.0, gt=0, le=86400)
     worker_retention_days: int = Field(default=30, ge=1, le=3650)
@@ -29,12 +30,15 @@ class Settings(BaseSettings):
 
     worker_enable_lbank: bool = True
     worker_enable_benchmarks: bool = True
+    worker_enable_ohlcv: bool = True
     worker_enable_discovery: bool = True
     worker_lbank_symbol: str = "BTCUSDT"
     worker_mexc_symbol: str = "BTC_USDT"
     worker_gate_symbol: str = "BTC_USDT"
     worker_bybit_symbol: str = "BTCUSDT"
     worker_binance_symbol: str = "BTCUSDT"
+    worker_ohlcv_symbol: str = "BTCUSDT"
+    worker_ohlcv_limit: int = Field(default=200, ge=2, le=1000)
 
     @model_validator(mode="after")
     def enforce_mvp_safety(self) -> Self:
@@ -57,6 +61,8 @@ class Settings(BaseSettings):
                     "worker_binance_symbol": self.worker_binance_symbol,
                 }
             )
+        if self.worker_enable_ohlcv:
+            required_symbols["worker_ohlcv_symbol"] = self.worker_ohlcv_symbol
         for name, value in required_symbols.items():
             if not value.strip():
                 raise ValueError(f"{name} must not be blank")
