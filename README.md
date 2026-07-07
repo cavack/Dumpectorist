@@ -16,6 +16,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Notification formatting and disabled delivery interface
 - Lifecycle and expiry handling
 - Read-only dashboard summary API
+- SQLAlchemy persistence foundation and Alembic migration
 - GitHub Actions with Ruff and pytest
 
 ## Configuration Rules
@@ -31,6 +32,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 ```bash
 cp .env.example .env
 docker compose up --build
+alembic upgrade head
 ```
 
 Endpoints:
@@ -56,6 +58,7 @@ app/
   adapters/         source contracts, health models, parsers, HTTP helper
   api/              FastAPI routes
   core/             settings and shared enums
+  db/               SQLAlchemy models, sessions, and repository
   flow/             candidate flow checks
   lifecycle/        lifecycle transitions and expiry handling
   notifications/    message formatting and delivery interfaces
@@ -65,14 +68,15 @@ app/
   strategy/         candidate review compatibility layer
   structure/        deterministic structure snapshots
   watchlist/        adapter payload to watchlist workflow
-tests/              pytest suite
-docs/               architecture and sprint documentation
-.github/            CI and repository templates
+migrations/          Alembic migration environment and versions
+tests/               pytest suite
+docs/                architecture and sprint documentation
+.github/             CI and repository templates
 ```
 
 ## Current Status
 
-Sprints 0 through 9 are implemented as foundation layers. The dashboard currently reports `NO_STORE` until persistence is connected.
+Sprints 0 through 9 and the Sprint 10A persistence foundation are implemented. The dashboard remains in `NO_STORE` mode until a persistence-backed provider is connected.
 
 ## Documentation
 
@@ -84,4 +88,5 @@ Sprints 0 through 9 are implemented as foundation layers. The dashboard currentl
 - `docs/NOTIFICATIONS.md`
 - `docs/LIFECYCLE.md`
 - `docs/DASHBOARD.md`
+- `docs/PERSISTENCE.md`
 - `docs/SPRINTS.md`
