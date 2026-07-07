@@ -67,14 +67,15 @@
 - [x] Time validation
 - [x] Tests and documentation
 
-## Next
-
 ### Sprint 9 — Dashboard MVP
 
-- [ ] Read-only summary models
-- [ ] Aggregation service
-- [ ] FastAPI dashboard route
-- [ ] Tests and documentation
+- [x] Read-only summary models
+- [x] Aggregation service
+- [x] Empty no-store provider
+- [x] FastAPI dashboard route
+- [x] Tests and documentation
+
+## Next
 
 ### Sprint 10 — Backtest and Operations
 
