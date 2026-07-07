@@ -12,6 +12,9 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - LBank execution hard gates for freshness, latency, spread, and depth
 - Public benchmark adapters for MEXC, Gate, Bybit, and Binance USD-M perpetuals
 - Typed benchmark freshness states and strict `BENCHMARK_ONLY` role
+- DEX Screener and CoinGecko discovery adapters
+- Shared discovery cache and request-budget controls
+- Strict `DISCOVERY_ONLY` role for discovery records
 - Watchlist workflow
 - Structure snapshot analysis
 - Setup classification
@@ -36,6 +39,7 @@ Dumpectorist is an MVP foundation for a market-structure monitoring workflow. Th
 - Backtests consume explicit historical bars and generate no market data.
 - LBank failures produce `EXECUTION_PENDING` or `DATA_DEGRADED`, never `SHORT_READY`.
 - MEXC, Gate, Bybit, and Binance are benchmark/confirmation only and cannot replace LBank execution checks.
+- DEX Screener and CoinGecko are discovery/context only and cannot provide entry, stop, target, or execution validation.
 
 ## Local Start
 
@@ -66,7 +70,7 @@ pytest -q
 
 ```text
 app/
-  adapters/         LBank execution source and public benchmark sources
+  adapters/         execution, benchmark, and discovery source adapters
   api/              FastAPI routes
   backtest/         deterministic runner and metrics
   core/             settings and shared enums
@@ -90,13 +94,14 @@ docs/                architecture and sprint documentation
 
 ## Current Status
 
-Sprints 0 through 10 plus Sprint 11A LBank integration, Sprint 11B database-backed overview, and Sprint 11C1 perpetual benchmark adapters are implemented as tested foundation layers. The next runtime work is discovery adapters and cross-exchange consensus.
+Sprints 0 through 10 plus Sprint 11A LBank integration, Sprint 11B database-backed overview, Sprint 11C1 perpetual benchmark adapters, and Sprint 11C2 discovery adapters are implemented as tested foundation layers. The next runtime work is cross-exchange consensus.
 
 ## Documentation
 
 - `docs/ADAPTERS.md`
 - `docs/LBANK.md`
 - `docs/BENCHMARKS.md`
+- `docs/DISCOVERY.md`
 - `docs/WATCHLIST.md`
 - `docs/STRUCTURE.md`
 - `docs/SETUPS.md`
