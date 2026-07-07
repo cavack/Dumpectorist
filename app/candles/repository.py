@@ -120,8 +120,6 @@ class OhlcvCandleRepository:
     def _record_from_candle(cls, candle: OhlcvCandle) -> OhlcvCandleRecord:
         return OhlcvCandleRecord(
             source=candle.source.value,
-            role=candle.role.value,
-            category=candle.category,
             symbol=candle.symbol,
             interval=candle.interval.value,
             open_time=candle.open_time,
