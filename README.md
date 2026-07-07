@@ -1,27 +1,28 @@
 # Dumpectorist
 
-MVP starter repository for the Dumpectorist market-structure monitoring project.
+Dumpectorist is an MVP foundation for a market-structure monitoring workflow. The repository contains deterministic domain layers, configuration safeguards, tests, and CI.
 
-## Includes
+## Implemented
 
-- FastAPI application skeleton
-- Health endpoint
-- Docker Compose setup
-- PostgreSQL service
-- Redis service
-- Environment example
-- Settings validation guard
-- GitHub Actions CI
-- Docker build ignore rules
-- Starter strategy review skeleton
-- Typed adapter foundation
-- Parser test foundation
-- Watchlist workflow foundation
-- Structure model foundation
-- Setup classifier foundation
-- Flow layer foundation
-- Sprint roadmap
-- GitHub PR template
+- FastAPI application and health endpoint
+- Docker Compose with PostgreSQL and Redis
+- Environment-based settings validation
+- Typed source-adapter contracts and parser helpers
+- Watchlist workflow
+- Structure snapshot analysis
+- Setup classification
+- Candidate flow checks
+- Dedicated planning package
+- Notification formatting and disabled delivery interface
+- Lifecycle and expiry handling
+- GitHub Actions with Ruff and pytest
+
+## Configuration Rules
+
+- `ENABLE_LIVE_ACTIONS` must remain `false`.
+- `MAX_LEVERAGE` must be between 1 and 5.
+- Planning rejects invalid entry and boundary combinations.
+- Planning rejects multiplier values outside 1 through 5.
 
 ## Local Start
 
@@ -36,48 +37,46 @@ Health check:
 curl http://localhost:8787/api/v1/health
 ```
 
-## Local Test
+## Local Quality Checks
 
 ```bash
 python -m pip install --upgrade pip
 pip install -e ".[dev]"
-pytest
+ruff check .
+pytest -q
 ```
 
 ## Project Structure
 
 ```text
 app/
-  adapters/         source adapter contracts, models, parser helpers, HTTP helper
-  api/              FastAPI route modules
+  adapters/         source contracts, health models, parsers, HTTP helper
+  api/              FastAPI routes
   core/             settings and shared enums
-  flow/             candidate flow layer before later planning layers
-  setups/           setup candidate classification layer
-  strategy/         candidate review and setup workflow skeleton
-  structure/        deterministic snapshot layer
+  flow/             candidate flow checks
+  lifecycle/        lifecycle transitions and expiry handling
+  notifications/    message formatting and delivery interfaces
+  planning/         deterministic plan models and construction
+  setups/           setup classification
+  strategy/         candidate review compatibility layer
+  structure/        deterministic structure snapshots
   watchlist/        adapter payload to watchlist workflow
-tests/              pytest test suite
-docs/               sprint and project notes
-.github/            GitHub templates and CI workflow
+tests/              pytest suite
+docs/               architecture and sprint documentation
+.github/            CI and repository templates
 ```
 
-## Implementation Order
+## Current Status
 
-1. Project foundation
-2. Data adapters
-3. Watchlist workflow
-4. Structure analysis
-5. Setup classifier
-6. Validation module
-7. Risk planning module
-8. Telegram and dashboard
-9. Lifecycle tracking
-10. Backtest and operations
+Sprints 0 through 8 are implemented as foundation layers. The next step is Sprint 9: a read-only dashboard summary.
 
-## Current Sprint
+## Documentation
 
-Sprint 5 adds the flow layer. See `docs/FLOW.md` for status values, rules, and tests.
-
-## Next Sprint
-
-Sprint 6 should add the risk planning module skeleton.
+- `docs/ADAPTERS.md`
+- `docs/WATCHLIST.md`
+- `docs/STRUCTURE.md`
+- `docs/SETUPS.md`
+- `docs/FLOW.md`
+- `docs/NOTIFICATIONS.md`
+- `docs/LIFECYCLE.md`
+- `docs/SPRINTS.md`
