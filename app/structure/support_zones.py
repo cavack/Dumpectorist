@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
 from hashlib import sha256
 
@@ -186,6 +187,8 @@ def _zone_from_cluster(
         + recency * Decimal("15"),
     ).quantize(Decimal("0.01"))
     evidence = tuple(item.candle.open_time for item in ordered)
+    final_confirmation_index = ordered[-1].index + rules.pivot_right
+    confirmed_at = candles[final_confirmation_index].close_time
     zone_id = _zone_id(
         source=ordered[0].candle.source.value,
         symbol=ordered[0].candle.symbol,
@@ -193,11 +196,13 @@ def _zone_from_cluster(
         evidence=evidence,
         low=zone_low,
         high=zone_high,
+        confirmed_at=confirmed_at,
     )
     reasons = (
         f"TOUCHES_{len(ordered)}",
         f"REJECTIONS_{rejections}",
         f"WIDTH_BPS_{width_bps.quantize(Decimal('0.01'))}",
+        f"PIVOT_RIGHT_{rules.pivot_right}",
     )
     return SupportZone(
         zone_id=zone_id,
@@ -207,7 +212,7 @@ def _zone_from_cluster(
         low=zone_low,
         high=zone_high,
         created_at=ordered[0].candle.close_time,
-        confirmed_at=ordered[-1].candle.close_time,
+        confirmed_at=confirmed_at,
         last_test_at=ordered[-1].candle.close_time,
         touch_count=len(ordered),
         rejection_count=rejections,
@@ -222,9 +227,10 @@ def _zone_id(
     source: str,
     symbol: str,
     interval: str,
-    evidence: tuple,
+    evidence: tuple[datetime, ...],
     low: Decimal,
     high: Decimal,
+    confirmed_at: datetime,
 ) -> str:
     raw = "|".join(
         (
@@ -233,6 +239,7 @@ def _zone_id(
             interval,
             str(low),
             str(high),
+            confirmed_at.isoformat(),
             *(item.isoformat() for item in evidence),
         )
     )
