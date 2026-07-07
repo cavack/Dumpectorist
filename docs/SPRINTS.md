@@ -1,63 +1,85 @@
 # Sprint Plan
 
-## Sprint 0
+## Completed
 
-- Repository structure
-- Docker setup
-- FastAPI app
-- Database service
-- Cache service
-- Health endpoint
-- Starter tests
+### Sprint 0 — Foundation
 
-## Sprint 1
+- [x] Repository structure
+- [x] Docker setup
+- [x] FastAPI app
+- [x] PostgreSQL and Redis services
+- [x] Health endpoint
+- [x] Starter tests
 
-- External adapters
-- Parser tests
-- Health checks
+### Sprint 1 — Adapters
 
-## Sprint 2
+- [x] Typed adapter protocol
+- [x] Health and payload models
+- [x] Parser helpers and tests
+- [x] HTTP helper
 
-- Watchlist workflow
-- Stored reasons
-- Basic notifications
+### Sprint 2 — Watchlist
 
-## Sprint 3
+- [x] Typed watchlist stages
+- [x] Payload conversion
+- [x] Paused handling
+- [x] Tests and documentation
 
-- Structure review module
-- Event storage
+### Sprint 3 — Structure
 
-## Sprint 4
+- [x] Structure input and snapshot models
+- [x] Deterministic analyzer
+- [x] Watchlist conversion
+- [x] Tests and documentation
 
-- Classifier module
-- Explanation output
+### Sprint 4 — Setups
 
-## Sprint 5
+- [x] Typed setup labels
+- [x] Snapshot classifier
+- [x] Candidate model
+- [x] Tests and documentation
 
-- Validation module
-- Planning module
+### Sprint 5 — Flow
 
-## Sprint 6
+- [x] Flow statuses and result model
+- [x] Required-data checks
+- [x] Tests and documentation
 
-- Notification UX
-- Message formatter
+### Sprint 6 — Planning
 
-## Sprint 7
+- [x] Dedicated planning package
+- [x] Request and draft models
+- [x] Entry, boundary, ratio, and multiplier validation
+- [x] Tests
 
-- Lifecycle tracking
-- Expiry handling
+### Sprint 7 — Notifications
 
-## Sprint 8
+- [x] Message models
+- [x] Plan formatter
+- [x] Delivery protocol
+- [x] Disabled delivery implementation
+- [x] Tests and documentation
 
-- Dashboard MVP
+### Sprint 8 — Lifecycle
 
-## Sprint 9
+- [x] Lifecycle states and record model
+- [x] Activation, expiry, and close transitions
+- [x] Time validation
+- [x] Tests and documentation
 
-- Backtest runner
-- Metrics report
+## Next
 
-## Sprint 10
+### Sprint 9 — Dashboard MVP
 
-- Operations
-- Backups
-- Audit logs
+- [ ] Read-only summary models
+- [ ] Aggregation service
+- [ ] FastAPI dashboard route
+- [ ] Tests and documentation
+
+### Sprint 10 — Backtest and Operations
+
+- [ ] Backtest runner
+- [ ] Metrics report
+- [ ] Persistence and migrations
+- [ ] Backups and audit logs
+- [ ] Operational health checks
