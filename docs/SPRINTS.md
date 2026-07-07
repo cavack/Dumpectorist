@@ -1,180 +1,94 @@
 # Sprint Plan
 
-## Completed
+## Completed Foundation
 
-### Sprint 0 — Foundation
+- [x] Sprint 0 — Repository, Docker, FastAPI, PostgreSQL, Redis, health endpoint
+- [x] Sprint 1 — Typed adapter contracts, parser helpers, HTTP client, health models
+- [x] Sprint 2 — Watchlist models and payload conversion
+- [x] Sprint 3 — Deterministic structure snapshots
+- [x] Sprint 4 — Setup classification
+- [x] Sprint 5 — Candidate flow checks
+- [x] Sprint 6 — Planning models and validation
+- [x] Sprint 7 — Notification formatting and disabled delivery
+- [x] Sprint 8 — Lifecycle transitions and expiry
+- [x] Sprint 9 — Read-only dashboard summary
+- [x] Sprint 10A — SQLAlchemy persistence and Alembic
+- [x] Sprint 10B — Deterministic backtest and metrics
+- [x] Sprint 10C — Audit, backup, dependency probes, operational health
 
-- [x] Repository structure
-- [x] Docker setup
-- [x] FastAPI app
-- [x] PostgreSQL and Redis services
-- [x] Health endpoint
-- [x] Starter tests
+## Completed Runtime Sources
 
-### Sprint 1 — Adapters
+### Sprint 11A — LBank Integration
 
-- [x] Typed adapter protocol
-- [x] Health and payload models
-- [x] Parser helpers and tests
-- [x] HTTP helper
-
-### Sprint 2 — Watchlist
-
-- [x] Typed watchlist stages
-- [x] Payload conversion
-- [x] Paused handling
-- [x] Tests and documentation
-
-### Sprint 3 — Structure
-
-- [x] Structure input and snapshot models
-- [x] Deterministic analyzer
-- [x] Watchlist conversion
-- [x] Tests and documentation
-
-### Sprint 4 — Setups
-
-- [x] Typed setup labels
-- [x] Snapshot classifier
-- [x] Candidate model
-- [x] Tests and documentation
-
-### Sprint 5 — Flow
-
-- [x] Flow statuses and result model
-- [x] Required-data checks
-- [x] Tests and documentation
-
-### Sprint 6 — Planning
-
-- [x] Dedicated planning package
-- [x] Request and draft models
-- [x] Entry, boundary, ratio, and multiplier validation
-- [x] Tests
-
-### Sprint 7 — Notifications
-
-- [x] Message models
-- [x] Plan formatter
-- [x] Delivery protocol
-- [x] Disabled delivery implementation
-- [x] Tests and documentation
-
-### Sprint 8 — Lifecycle
-
-- [x] Lifecycle states and record model
-- [x] Activation, expiry, and close transitions
-- [x] Time validation
-- [x] Tests and documentation
-
-### Sprint 9 — Dashboard MVP
-
-- [x] Read-only summary models
-- [x] Aggregation service
-- [x] Empty no-store provider
-- [x] FastAPI dashboard route
-- [x] Tests and documentation
-
-### Sprint 10A — Persistence
-
-- [x] SQLAlchemy base and domain record model
-- [x] Async session factory
-- [x] Validated repository
-- [x] Alembic environment and initial migration
-- [x] Repository and migration integration tests
-
-### Sprint 10B — Backtest and Metrics
-
-- [x] Deterministic backtest runner
-- [x] Explicit intrabar policy
-- [x] Metrics report
-- [x] Input validation
-- [x] Tests and documentation
-
-### Sprint 10C — Operations
-
-- [x] Audit event conversion
-- [x] Backup manifests and checksums
-- [x] Database and Redis probes
-- [x] Operational health endpoint
-- [x] Docker health checks
-- [x] Tests and documentation
-
-### Sprint 11A — LBank Runtime Integration
-
-- [x] Public contract instrument parser
-- [x] Public market-data parser
-- [x] Public order-book parser
-- [x] Decimal spread and depth calculation
-- [x] Snapshot receive time and latency
-- [x] Execution freshness, spread, and depth hard gates
-- [x] Degraded behavior without fallback values
-- [x] Tests and documentation
+- [x] Public instrument, market, and order-book parsing
+- [x] Decimal spread and depth calculations
+- [x] Freshness, latency, spread, and depth validation
+- [x] Controlled degraded behavior
 
 ### Sprint 11B — Persistence-backed Overview
 
-- [x] Aggregate canonical persisted record types
-- [x] Dependency-injected database provider
-- [x] Honest empty database output
-- [x] Database unavailable mode without API 500
-- [x] Unknown-state and non-dashboard record reporting
-- [x] Integration tests and documentation
+- [x] Database summary provider
+- [x] Honest empty and unavailable states
+- [x] Unknown-record reporting
 
-### Sprint 11C1 — Perpetual Benchmark Adapters
+### Sprint 11C1 — Perpetual Benchmarks
 
-- [x] MEXC USDT perpetual adapter
-- [x] Gate USDT futures adapter
-- [x] Bybit linear perpetual adapter
-- [x] Binance USD-M perpetual adapter
-- [x] Locked `BENCHMARK_ONLY` role
-- [x] Decimal price, funding, open-interest, spread, and depth values
-- [x] Source timestamp, receive time, latency, and freshness states
-- [x] Tests and documentation
+- [x] MEXC USDT perpetual
+- [x] Gate USDT futures
+- [x] Bybit linear perpetual
+- [x] Binance USD-M perpetual
+- [x] Locked benchmark-only role
+- [x] Source freshness and health reporting
 
-### Sprint 11C2 — Discovery Adapters
+### Sprint 11C2 — Discovery Sources
 
-- [x] DEX Screener boosts, profiles, search, and token-pair feeds
-- [x] CoinGecko markets, categories, and universe feeds
-- [x] Locked `DISCOVERY_ONLY` role
-- [x] Shared async TTL cache
-- [x] Sliding-window request budget
-- [x] Controlled degraded behavior
-- [x] Tests and documentation
+- [x] DEX Screener feeds
+- [x] CoinGecko markets, categories, and universe
+- [x] Locked discovery-only role
+- [x] TTL cache and request budgets
 
 ### Sprint 11D — Cross-Exchange Consensus
 
 - [x] Explicit symbol mapping
-- [x] Fresh-source median price
-- [x] Per-source deviation reporting
-- [x] LBank deviation thresholds
-- [x] Minimum-source and stale-source rules
-- [x] Benchmark dispersion hard gate
-- [x] LBank execution status propagation
-- [x] Tests and documentation
+- [x] Fresh-source median
+- [x] Deviation and dispersion checks
+- [x] Minimum-source rules
+- [x] LBank status propagation
 
 ### Sprint 11E — Runtime Orchestration
 
-- [x] Scheduled benchmark and discovery jobs
-- [x] Per-job intervals, initial delays, and timeouts
+- [x] Scheduled source jobs
+- [x] Per-job intervals, delays, and timeouts
 - [x] In-flight duplicate prevention
-- [x] Worker-level failure isolation
+- [x] Worker failure isolation
 - [x] Atomic source snapshot, health, and run persistence
-- [x] Strict JSON-safe Decimal and datetime conversion
-- [x] Dedicated worker loop with graceful stop event
-- [x] Tests and documentation
+- [x] Graceful worker stop event
+
+### Sprint 11F — End-to-End Assembly
+
+- [x] Daily and 4H structure evidence gate
+- [x] Explicit setup variants
+- [x] Structure, setup, and flow composition
+- [x] LBank validation and benchmark consensus composition
+- [x] Entry-distance validation
+- [x] Planning and lifecycle composition
+- [x] Complete gate and skipped-stage audit trail
+- [x] Atomic assembly and lifecycle persistence
+- [x] Scenario and database tests
 
 ## Next
 
-### Sprint 11F — End-to-End Signal Assembly
-
-- [ ] Connect discovery, structure, setup, execution, consensus, and planning
-- [ ] Preserve hard-gate explanations
-- [ ] Persist complete signal lifecycle records
-- [ ] Scenario tests and documentation
-
 ### Sprint 11G — Runtime Deployment
 
-- [ ] Dedicated worker entrypoint and process supervision
-- [ ] Configuration-driven source job registry
-- [ ] Retention and cleanup policy for runtime records
+- [ ] Dedicated worker entrypoint
+- [ ] Configuration-driven job registry
+- [ ] Process supervision and graceful shutdown wiring
+- [ ] Record retention and cleanup
 - [ ] Operational metrics and alerting
+
+### Sprint 11H — Dry-run Validation
+
+- [ ] Persisted dry-run candidate review
+- [ ] Gate-frequency and failure analysis
+- [ ] Threshold calibration reports
+- [ ] No-order end-to-end validation
