@@ -96,7 +96,7 @@ def evaluate_readiness(
     warnings = list(reality.warnings)
     excluded = [item for item in clock_audit if not item.included]
     if excluded:
-        reasons.append("BENCHMARK_TIMESTAMP_ALIGNMENT_FAILED")
+        warnings.append("BENCHMARK_TIMESTAMP_ALIGNMENT_EXCLUSIONS")
 
     if reality.readiness == ExecutionReadiness.DATA_DEGRADED:
         readiness = ExecutionReadiness.DATA_DEGRADED
@@ -108,7 +108,7 @@ def evaluate_readiness(
         readiness = ExecutionReadiness.NO_TRADE
         recommendation = OrderRecommendation.NO_ORDER
         reasons.extend(consensus.reasons)
-    elif consensus.status == ConsensusStatus.DATA_DEGRADED or excluded:
+    elif consensus.status == ConsensusStatus.DATA_DEGRADED:
         readiness = ExecutionReadiness.DATA_DEGRADED
         recommendation = OrderRecommendation.NO_ORDER
         reasons.extend(consensus.reasons)
