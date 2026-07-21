@@ -21,6 +21,22 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Select last 90 complete archive days
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('research/backtest_90d.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace(
+              'START=datetime(2026,4,22,tzinfo=UTC); END=datetime(2026,7,21,tzinfo=UTC)',
+              'START=datetime(2026,4,21,tzinfo=UTC); END=datetime(2026,7,20,tzinfo=UTC)',
+          )
+          text = text.replace('probe_stamp="2026-07-20"', 'probe_stamp="2026-07-19"')
+          text = text.replace('no_2026-07-20_archive', 'no_2026-07-19_archive')
+          path.write_text(text, encoding='utf-8')
+          PY
+
       - name: Compile research runner
         run: python -m compileall -q research
 
@@ -38,7 +54,10 @@ jobs:
           from pathlib import Path
           data = json.loads(Path('research_backtest_result.json').read_text())
           assert data['run']['primary_source'] == 'data.binance.vision USD-M futures archives'
+          assert data['run']['period_start'] == '2026-04-21T00:00:00+00:00'
+          assert data['run']['period_end_exclusive'] == '2026-07-20T00:00:00+00:00'
           assert data['metrics']['capital_start'] == 100.0
+          assert data['universe'], data['symbol_diagnostics']
           print(json.dumps(data['metrics'], indent=2, sort_keys=True))
           PY
 
