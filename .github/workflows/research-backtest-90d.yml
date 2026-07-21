@@ -1,0 +1,55 @@
+name: Research Backtest 90D
+
+on:
+  push:
+    branches:
+      - research/backtest-90d-run3-2026-07-21
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backtest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile research runner
+        run: python -m compileall -q research
+
+      - name: Execute fixed 90-day backtest
+        shell: bash
+        run: |
+          set -o pipefail
+          python research/backtest_90d.py 2>&1 | tee research-backtest.log
+
+      - name: Validate result exists
+        run: |
+          test -s research_backtest_result.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("research_backtest_result.json").read_text())
+          assert data["run"]["primary_source"] == "data.binance.vision USD-M futures archives"
+          assert data["metrics"]["capital_start"] == 100.0
+          print(json.dumps(data["metrics"], indent=2, sort_keys=True))
+          PY
+
+      - name: Upload backtest evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-backtest-90d
+          path: |
+            research_backtest_result.json
+            research-backtest.log
+          if-no-files-found: warn
+          retention-days: 14
